@@ -1,0 +1,15 @@
+{
+  "name": "google-phishing-demo",
+  "version": "1.0.0",
+  "description": "MVP Phishing - Projet académique cybersécurité",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "nodemailer": "^6.9.0",
+    "dotenv": "^16.4.0"
+  }
+}

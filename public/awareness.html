@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sensibilisation - Phishing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .card {
+      background: #16213e;
+      border-radius: 16px;
+      padding: 48px 40px;
+      border: 1px solid #0f3460;
+      text-align: center;
+    }
+
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      background: rgba(233, 69, 96, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon svg {
+      width: 40px;
+      height: 40px;
+      fill: #e94560;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #e94560;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: #a0a0b8;
+      margin-bottom: 32px;
+    }
+
+    .explanation {
+      text-align: left;
+      margin-bottom: 32px;
+    }
+
+    .explanation h2 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .step-list {
+      list-style: none;
+    }
+
+    .step-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .step-list li:last-child {
+      border-bottom: none;
+    }
+
+    .step-number {
+      background: #e94560;
+      color: #fff;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #c0c0d0;
+    }
+
+    .tips {
+      text-align: left;
+      background: rgba(83, 182, 115, 0.08);
+      border: 1px solid rgba(83, 182, 115, 0.2);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+    }
+
+    .tips h2 {
+      font-size: 16px;
+      font-weight: 500;
+      color: #53b673;
+      margin-bottom: 12px;
+    }
+
+    .tips ul {
+      list-style: none;
+    }
+
+    .tips ul li {
+      font-size: 14px;
+      color: #c0c0d0;
+      padding: 6px 0;
+      padding-left: 20px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .tips ul li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #53b673;
+      font-weight: 700;
+    }
+
+    .btn {
+      display: inline-block;
+      background: #1a73e8;
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 32px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #1765cc;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 32px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+      </div>
+
+      <h1>Vous avez été piégé.</h1>
+      <p class="subtitle">Ceci était une simulation de phishing dans un cadre éducatif.</p>
+
+      <div class="explanation">
+        <h2>Que s'est-il passé ?</h2>
+        <ol class="step-list">
+          <li>
+            <span class="step-number">1</span>
+            <span class="step-text">Vous avez ouvert un lien menant vers une <strong>fausse page de connexion Google</strong>.</span>
+          </li>
+          <li>
+            <span class="step-number">2</span>
+            <span class="step-text">La page ressemblait à l'originale, mais l'<strong>URL n'était pas accounts.google.com</strong>.</span>
+          </li>
+          <li>
+            <span class="step-number">3</span>
+            <span class="step-text">Vous avez saisi vos identifiants, qui ont été <strong>envoyés à l'attaquant</strong> au lieu de Google.</span>
+          </li>
+          <li>
+            <span class="step-number">4</span>
+            <span class="step-text">Un vrai attaquant aurait maintenant <strong>accès à votre compte</strong>.</span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="tips">
+        <h2>Comment se protéger ?</h2>
+        <ul>
+          <li>Vérifiez toujours l'URL dans la barre d'adresse avant de saisir vos identifiants</li>
+          <li>Activez l'authentification à deux facteurs (2FA) sur tous vos comptes</li>
+          <li>Ne cliquez jamais sur un lien suspect dans un e-mail ou message</li>
+          <li>Utilisez un gestionnaire de mots de passe (il ne remplira pas un faux site)</li>
+          <li>En cas de doute, accédez au site directement en tapant l'URL vous-même</li>
+        </ul>
+      </div>
+
+      <a class="btn" href="https://accounts.google.com" target="_blank">Aller sur le vrai Google</a>
+
+      <p class="footer-note">Simulation réalisée dans un cadre académique. Aucune donnée n'a été conservée.</p>
+    </div>
+  </div>
+</body>
+</html>
