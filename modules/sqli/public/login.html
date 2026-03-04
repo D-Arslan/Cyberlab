@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion - CyberShop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+    }
+
+    /* ─── Back link ─── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #64748b;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      transition: color 0.2s;
+    }
+
+    .back-link svg { width: 16px; height: 16px; fill: currentColor; }
+    .back-link:hover { color: #2563eb; }
+
+    /* ─── Login card ─── */
+    .login-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 40px 32px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+
+    .login-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .login-logo svg { width: 32px; height: 32px; }
+
+    .login-logo span {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .login-logo .highlight { color: #2563eb; }
+
+    .login-subtitle {
+      text-align: center;
+      color: #64748b;
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      color: #374151;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      color: #1e293b;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-group input::placeholder { color: #94a3b8; }
+
+    .login-btn {
+      width: 100%;
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 6px;
+    }
+
+    .login-btn:hover { background: #1d4ed8; }
+
+    /* ─── SQL display ─── */
+    .sql-display {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 18px;
+      font-family: 'Courier New', monospace;
+      display: none;
+    }
+
+    .sql-display.visible { display: block; }
+
+    .sql-display .label {
+      color: #64748b;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .sql-display code {
+      color: #f87171;
+      word-break: break-all;
+      font-size: 12px;
+    }
+
+    /* ─── Messages ─── */
+    .message {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+      font-weight: 500;
+    }
+
+    .message.error {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+    }
+
+    .message.success {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #16a34a;
+    }
+
+    .message svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+
+    /* ─── Tip box ─── */
+    .tip {
+      margin-top: 20px;
+      padding: 16px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #f59e0b;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .tip-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #b45309;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .tip-title svg { width: 16px; height: 16px; fill: #f59e0b; }
+
+    .tip p {
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .tip code {
+      background: #f1f5f9;
+      color: #dc2626;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <a href="index.html" class="back-link">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Retour au lab
+    </a>
+
+    <div class="login-card">
+      <div class="login-logo">
+        <svg viewBox="0 0 24 24" fill="#2563eb"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"/></svg>
+        <span>Cyber<span class="highlight">Shop</span></span>
+      </div>
+      <p class="login-subtitle">Connexion a l'espace administration</p>
+
+      <div class="form-group">
+        <label>Nom d'utilisateur</label>
+        <input type="text" id="username" placeholder="Entrez votre identifiant" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" id="password" placeholder="Entrez votre mot de passe">
+      </div>
+
+      <button class="login-btn" onclick="login()">Se connecter</button>
+
+      <div class="sql-display" id="sqlDisplay">
+        <div class="label">Requete SQL executee</div>
+        <code id="sqlCode"></code>
+      </div>
+
+      <div class="message" id="message"></div>
+    </div>
+
+    <div class="tip">
+      <div class="tip-title">
+        <svg viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+        Astuce
+      </div>
+      <p>Cette page est vulnerable a l'injection SQL. Le champ username n'est pas protege. Que se passe-t-il si tu fermes la condition SQL avec <code>'</code> et ajoutes un commentaire <code>--</code> ?</p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('username').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+    document.getElementById('password').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
+    async function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const msgEl = document.getElementById('message');
+      const sqlDisplay = document.getElementById('sqlDisplay');
+
+      const res = await fetch('/sqli/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+
+      document.getElementById('sqlCode').textContent = data.query;
+      sqlDisplay.classList.add('visible');
+
+      if (data.success) {
+        msgEl.className = 'message success';
+        msgEl.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Connecte en tant que "' + escapeHtml(data.user.username) + '" (' + escapeHtml(data.user.role) + ')';
+
+        setTimeout(() => {
+          window.location.href = 'admin.html';
+        }, 1500);
+      } else {
+        msgEl.className = 'message error';
+        msgEl.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg> ' + (data.error ? 'Erreur SQL : ' + escapeHtml(data.error) : escapeHtml(data.message));
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = String(str);
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

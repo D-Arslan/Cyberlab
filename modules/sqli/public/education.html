@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL Injection - Th&eacute;orie &amp; Pr&eacute;vention</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #111;
+      border-bottom: 1px solid #222;
+      padding: 16px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: bold;
+      color: #00ff41;
+      text-decoration: none;
+    }
+
+    .brand span { color: #ff4444; }
+
+    nav a {
+      color: #666;
+      text-decoration: none;
+      margin-left: 24px;
+      font-size: 14px;
+      transition: color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    nav a svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    nav a:hover { color: #00ff41; }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+    }
+
+    h1 {
+      color: #00ff41;
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .intro {
+      color: #888;
+      font-size: 15px;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    /* --- Sections --- */
+    .section {
+      margin-bottom: 36px;
+    }
+
+    .section h2 {
+      color: #00ff41;
+      font-size: 20px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .section p, .section li {
+      color: #bbb;
+      font-size: 14px;
+      line-height: 1.8;
+      margin-bottom: 10px;
+    }
+
+    .section ul {
+      padding-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    /* --- Code blocks --- */
+    .code-block {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin: 14px 0 20px;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .code-block .label {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .code-block .label.vuln {
+      color: #ff4444;
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid #330000;
+    }
+
+    .code-block .label.safe {
+      color: #00ff41;
+      background: rgba(0, 255, 65, 0.1);
+      border: 1px solid #003300;
+    }
+
+    .code-block code {
+      color: #e0e0e0;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre;
+    }
+
+    .code-block code .keyword { color: #ff79c6; }
+    .code-block code .string { color: #f1fa8c; }
+    .code-block code .comment { color: #555; }
+    .code-block code .danger { color: #ff4444; font-weight: bold; }
+    .code-block code .safe { color: #00ff41; }
+
+    /* --- Comparison cards --- */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0 20px;
+    }
+
+    .comparison-card {
+      background: #111;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .comparison-card.bad {
+      border: 1px solid #330000;
+    }
+
+    .comparison-card.good {
+      border: 1px solid #003300;
+    }
+
+    .comparison-card h4 {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .comparison-card.bad h4 { color: #ff4444; }
+    .comparison-card.good h4 { color: #00ff41; }
+
+    .comparison-card code {
+      font-size: 12px;
+      color: #ccc;
+      line-height: 1.6;
+      white-space: pre;
+    }
+
+    /* --- Attack types --- */
+    .attack-type {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .attack-type h3 {
+      color: #ff6b6b;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .attack-type p {
+      color: #999;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .attack-type .example {
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
+      border-radius: 4px;
+      padding: 10px 14px;
+      margin-top: 8px;
+    }
+
+    .attack-type .example code {
+      color: #ff6b6b;
+      font-size: 13px;
+    }
+
+    /* --- Prevention checklist --- */
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+
+    .checklist li {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .checklist li .check {
+      color: #00ff41;
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .checklist li strong {
+      color: #e0e0e0;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .checklist li span {
+      color: #888;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* --- Impact stats --- */
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 16px 0 20px;
+    }
+
+    .impact-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .impact-card .stat {
+      font-size: 28px;
+      color: #ff4444;
+      font-weight: bold;
+    }
+
+    .impact-card .desc {
+      color: #666;
+      font-size: 12px;
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* --- CTA --- */
+    .cta {
+      background: #111;
+      border: 2px solid #00ff41;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .cta h2 {
+      color: #00ff41;
+      margin-bottom: 10px;
+      border: none;
+      padding: 0;
+    }
+
+    .cta p {
+      color: #888;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .cta-btn {
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .cta-btn.primary {
+      background: #00ff41;
+      color: #0a0a0a;
+      border: none;
+    }
+
+    .cta-btn.primary:hover { background: #00cc33; }
+
+    .cta-btn.secondary {
+      background: none;
+      color: #00ff41;
+      border: 2px solid #00ff41;
+    }
+
+    .cta-btn.secondary:hover {
+      background: rgba(0, 255, 65, 0.1);
+    }
+
+    @media (max-width: 600px) {
+      .comparison { grid-template-columns: 1fr; }
+      .impact-grid { grid-template-columns: 1fr; }
+      .cta-buttons { flex-direction: column; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="brand">Cyber<span>Lab</span></a>
+    <nav>
+      <a href="shop.html?mode=guided"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg> Mode guid&eacute;</a>
+      <a href="shop.html?mode=free"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1 14H5c-.55 0-1-.45-1-1V7c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1zm-8-2l2-4 2 4h-4z"/></svg> Mode libre</a>
+      <a href="index.html"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> Retour</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1>SQL Injection</h1>
+    <p class="intro">
+      L'injection SQL est class&eacute;e #3 dans le Top 10 OWASP. C'est l'une des vuln&eacute;rabilit&eacute;s les plus anciennes,
+      les plus r&eacute;pandues et les plus dangereuses du web. Comprendre comment elle fonctionne est la premi&egrave;re &eacute;tape pour s'en prot&eacute;ger.
+    </p>
+
+    <!-- Impact -->
+    <div class="section">
+      <h2>L'impact en chiffres</h2>
+      <div class="impact-grid">
+        <div class="impact-card">
+          <div class="stat">#3</div>
+          <div class="desc">OWASP Top 10</div>
+        </div>
+        <div class="impact-card">
+          <div class="stat">65%</div>
+          <div class="desc">des apps web vuln&eacute;rables</div>
+        </div>
+        <div class="impact-card">
+          <div class="stat">$6M</div>
+          <div class="desc">co&ucirc;t moyen par breach</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comment ca marche -->
+    <div class="section">
+      <h2>Comment &ccedil;a marche ?</h2>
+      <p>
+        Une injection SQL se produit quand une application ins&egrave;re des donn&eacute;es utilisateur directement
+        dans une requ&ecirc;te SQL sans les filtrer. L'attaquant peut alors modifier la requ&ecirc;te pour
+        acc&eacute;der &agrave; des donn&eacute;es non autoris&eacute;es, contourner l'authentification, ou m&ecirc;me supprimer des tables.
+      </p>
+
+      <div class="code-block">
+        <div class="label vuln">VULN&Eacute;RABLE</div>
+        <code><span class="comment">// L'entr&eacute;e utilisateur est concat&eacute;n&eacute;e directement</span>
+<span class="keyword">const</span> sql = <span class="string">`SELECT * FROM users
+  WHERE username = '<span class="danger">${username}</span>'
+  AND password = '<span class="danger">${password}</span>'`</span>;</code>
+      </div>
+
+      <p>Si l'utilisateur entre <code>' OR 1=1 --</code> comme nom d'utilisateur, la requ&ecirc;te devient :</p>
+
+      <div class="code-block">
+        <code><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> users
+  <span class="keyword">WHERE</span> username = <span class="string">''</span> <span class="danger">OR 1=1 --</span><span class="string">'
+  AND password = '...'</span></code>
+      </div>
+
+      <p>
+        La condition <code>OR 1=1</code> est toujours vraie, et <code>--</code> commente le reste.
+        R&eacute;sultat : l'attaquant est connect&eacute; comme le premier utilisateur de la table (souvent l'admin).
+      </p>
+    </div>
+
+    <!-- Types d'attaques -->
+    <div class="section">
+      <h2>Types d'injections SQL</h2>
+
+      <div class="attack-type">
+        <h3>1. Tautologie (OR 1=1)</h3>
+        <p>Contourne l'authentification en rendant la condition toujours vraie.</p>
+        <div class="example">
+          <code>' OR 1=1 --</code>
+        </div>
+      </div>
+
+      <div class="attack-type">
+        <h3>2. UNION SELECT</h3>
+        <p>Combine les r&eacute;sultats de la requ&ecirc;te originale avec une requ&ecirc;te de l'attaquant pour extraire des donn&eacute;es d'autres tables.</p>
+        <div class="example">
+          <code>' UNION SELECT 1,username,password,4,5,6 FROM users --</code>
+        </div>
+      </div>
+
+      <div class="attack-type">
+        <h3>3. Extraction du sch&eacute;ma</h3>
+        <p>R&eacute;cup&egrave;re la structure de la base de donn&eacute;es (noms de tables, colonnes) pour planifier des attaques cibl&eacute;es.</p>
+        <div class="example">
+          <code>' UNION SELECT 1,name,sql,3,4,5 FROM sqlite_master --</code>
+        </div>
+      </div>
+
+      <div class="attack-type">
+        <h3>4. Blind SQL Injection</h3>
+        <p>Quand l'application ne montre pas les r&eacute;sultats SQL, l'attaquant pose des questions vrai/faux pour extraire les donn&eacute;es caract&egrave;re par caract&egrave;re.</p>
+        <div class="example">
+          <code>' AND SUBSTR(password,1,1)='S' --</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vulnerable vs Safe -->
+    <div class="section">
+      <h2>Vuln&eacute;rable vs S&eacute;curis&eacute;</h2>
+
+      <div class="comparison">
+        <div class="comparison-card bad">
+          <h4>Concat&eacute;nation (vuln&eacute;rable)</h4>
+          <code>const sql =
+  `SELECT * FROM products
+   WHERE name LIKE
+   '%${query}%'`;
+
+db.prepare(sql).all();</code>
+        </div>
+        <div class="comparison-card good">
+          <h4>Requ&ecirc;te param&eacute;tr&eacute;e (s&ucirc;r)</h4>
+          <code>const sql =
+  `SELECT * FROM products
+   WHERE name LIKE ?`;
+
+db.prepare(sql)
+  .all(`%${query}%`);</code>
+        </div>
+      </div>
+
+      <p>
+        Avec une requ&ecirc;te param&eacute;tr&eacute;e (<code>?</code>), la base de donn&eacute;es traite la valeur comme une donn&eacute;e,
+        jamais comme du code SQL. L'injection est impossible.
+      </p>
+    </div>
+
+    <!-- Comment se proteger -->
+    <div class="section">
+      <h2>Comment se prot&eacute;ger</h2>
+
+      <ul class="checklist">
+        <li>
+          <div class="check">&#10003;</div>
+          <div>
+            <strong>Requ&ecirc;tes param&eacute;tr&eacute;es (Prepared Statements)</strong>
+            <span>La d&eacute;fense #1. Utilise des placeholders (<code>?</code> ou <code>:name</code>) au lieu de concat&eacute;ner les variables. Disponible dans tous les langages et frameworks.</span>
+          </div>
+        </li>
+        <li>
+          <div class="check">&#10003;</div>
+          <div>
+            <strong>ORM (Object-Relational Mapping)</strong>
+            <span>Les ORM comme Sequelize, Prisma ou SQLAlchemy g&eacute;n&egrave;rent des requ&ecirc;tes param&eacute;tr&eacute;es automatiquement. Moins de risque d'erreur humaine.</span>
+          </div>
+        </li>
+        <li>
+          <div class="check">&#10003;</div>
+          <div>
+            <strong>Validation des entr&eacute;es</strong>
+            <span>V&eacute;rifie le type et le format attendu. Un ID doit &ecirc;tre un nombre, un email doit correspondre au format email, etc.</span>
+          </div>
+        </li>
+        <li>
+          <div class="check">&#10003;</div>
+          <div>
+            <strong>Principe du moindre privil&egrave;ge</strong>
+            <span>L'utilisateur de la base de donn&eacute;es ne doit avoir que les permissions n&eacute;cessaires. Pas de DROP TABLE si l'app ne fait que lire.</span>
+          </div>
+        </li>
+        <li>
+          <div class="check">&#10003;</div>
+          <div>
+            <strong>Ne jamais exposer les erreurs SQL</strong>
+            <span>Les messages d'erreur d&eacute;taill&eacute;s aident l'attaquant. En production, affichez un message g&eacute;n&eacute;rique et loguez l'erreur c&ocirc;t&eacute; serveur.</span>
+          </div>
+        </li>
+        <li>
+          <div class="check">&#10003;</div>
+          <div>
+            <strong>WAF (Web Application Firewall)</strong>
+            <span>Couche de d&eacute;fense suppl&eacute;mentaire. D&eacute;tecte et bloque les patterns d'injection connus. Ne remplace pas les bonnes pratiques de code.</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Exemples reels -->
+    <div class="section">
+      <h2>Attaques c&eacute;l&egrave;bres</h2>
+      <ul>
+        <li><strong>Sony Pictures (2011)</strong> &mdash; 77 millions de comptes compromis via injection SQL sur le PlayStation Network.</li>
+        <li><strong>Heartland Payment Systems (2008)</strong> &mdash; 130 millions de num&eacute;ros de cartes vol&eacute;s. Co&ucirc;t : 140 millions de dollars.</li>
+        <li><strong>TalkTalk (2015)</strong> &mdash; 157 000 clients affect&eacute;s. Un adolescent de 17 ans a exploit&eacute; une simple injection SQL.</li>
+      </ul>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+      <h2>Passe &agrave; la pratique</h2>
+      <p>Maintenant que tu connais la th&eacute;orie, teste tes comp&eacute;tences sur l'application vuln&eacute;rable CyberShop.</p>
+      <div class="cta-buttons">
+        <a href="shop.html?mode=guided" class="cta-btn primary">Mode guid&eacute;</a>
+        <a href="shop.html?mode=free" class="cta-btn secondary">Mode libre</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

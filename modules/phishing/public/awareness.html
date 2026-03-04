@@ -152,9 +152,15 @@
       font-weight: 700;
     }
 
+    .buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     .btn {
       display: inline-block;
-      background: #1a73e8;
       color: #fff;
       text-decoration: none;
       padding: 12px 32px;
@@ -164,8 +170,21 @@
       transition: background 0.2s;
     }
 
-    .btn:hover {
+    .btn-primary {
+      background: #1a73e8;
+    }
+
+    .btn-primary:hover {
       background: #1765cc;
+    }
+
+    .btn-back {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 255, 255, 0.15);
     }
 
     .footer-note {
@@ -224,7 +243,10 @@
         </ul>
       </div>
 
-      <a class="btn" href="https://accounts.google.com" target="_blank">Aller sur le vrai Google</a>
+      <div class="buttons">
+        <a class="btn btn-back" href="/">Retour a CyberLab</a>
+        <a class="btn btn-primary" href="https://accounts.google.com" target="_blank">Aller sur le vrai Google</a>
+      </div>
 
       <p class="footer-note">Simulation réalisée dans un cadre académique. Aucune donnée n'a été conservée.</p>
     </div>

