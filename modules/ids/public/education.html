@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberGuard - Education IDS | CyberLab</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .nav a { color: #555; text-decoration: none; font-size: 13px; transition: color 0.2s; }
+    .nav a:hover { color: #00ff41; }
+    .nav .sep { color: #333; margin: 0 10px; }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    h1 {
+      font-size: 28px;
+      color: #00aaff;
+      margin-bottom: 8px;
+    }
+    .intro {
+      color: #888;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      font-size: 20px;
+      color: #e0e0e0;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .section h3 {
+      font-size: 16px;
+      color: #ffaa00;
+      margin: 20px 0 10px;
+    }
+    .section p {
+      color: #999;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .code-block {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 12px 0 16px;
+      overflow-x: auto;
+    }
+    .code-block code {
+      color: #00ff41;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre;
+    }
+
+    .info-box {
+      padding: 16px 18px;
+      border-radius: 8px;
+      margin: 12px 0 16px;
+    }
+    .info-box.blue {
+      background: rgba(0, 170, 255, 0.06);
+      border: 1px solid rgba(0, 170, 255, 0.15);
+    }
+    .info-box.green {
+      background: rgba(0, 255, 65, 0.06);
+      border: 1px solid rgba(0, 255, 65, 0.15);
+    }
+    .info-box.red {
+      background: rgba(255, 68, 68, 0.06);
+      border: 1px solid rgba(255, 68, 68, 0.15);
+    }
+    .info-box.yellow {
+      background: rgba(255, 170, 0, 0.06);
+      border: 1px solid rgba(255, 170, 0, 0.15);
+    }
+    .info-box p { margin-bottom: 4px; }
+    .info-box strong { color: #e0e0e0; }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px;
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #1a1a1a;
+      font-size: 13px;
+    }
+    .comparison-table th {
+      color: #888;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: #111;
+    }
+    .comparison-table td { color: #999; }
+
+    .rule-anatomy {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 12px 0;
+    }
+    .rule-anatomy .rule-line {
+      font-size: 14px;
+      margin-bottom: 16px;
+      line-height: 1.8;
+    }
+    .rule-anatomy .part {
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+    .part-action { background: rgba(255, 68, 68, 0.15); color: #ff4444; }
+    .part-proto { background: rgba(0, 170, 255, 0.15); color: #00aaff; }
+    .part-ip { background: rgba(0, 255, 65, 0.15); color: #00ff41; }
+    .part-port { background: rgba(255, 170, 0, 0.15); color: #ffaa00; }
+    .part-dir { color: #888; }
+    .part-opt { background: rgba(170, 68, 255, 0.15); color: #aa44ff; }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 8px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #888;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin: 8px 0 12px;
+    }
+    ul li {
+      color: #999;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 4px;
+    }
+    ul li strong { color: #e0e0e0; }
+
+    .footer {
+      text-align: center;
+      padding: 30px 20px;
+      border-top: 1px solid #111;
+    }
+    .footer a { color: #444; text-decoration: none; font-size: 13px; }
+    .footer a:hover { color: #00aaff; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/">CyberLab</a>
+    <span class="sep">/</span>
+    <a href="/ids/">CyberGuard</a>
+    <span class="sep">/</span>
+    <a href="education.html" style="color: #ffaa00;">Education</a>
+  </nav>
+
+  <div class="container">
+    <h1>IDS / IPS : Theorie et pratique</h1>
+    <p class="intro">Comprendre les systemes de detection et de prevention d'intrusion, et apprendre a ecrire des regles Snort efficaces.</p>
+
+    <!-- Section 1: Qu'est-ce qu'un IDS ? -->
+    <div class="section">
+      <h2>1. Qu'est-ce qu'un IDS ?</h2>
+      <p>Un <strong>IDS</strong> (Intrusion Detection System) est un systeme qui surveille le trafic reseau en temps reel et detecte les activites suspectes ou malveillantes.</p>
+
+      <div class="info-box blue">
+        <p><strong>Analogie :</strong> Un IDS est comme une camera de surveillance. Il observe tout ce qui passe et declenche une alarme quand il voit quelque chose de suspect. Mais il ne bloque rien.</p>
+      </div>
+
+      <h3>IDS vs IPS</h3>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>IDS (Detection)</th>
+            <th>IPS (Prevention)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Role</strong></td>
+            <td>Detecte et alerte</td>
+            <td>Detecte et bloque</td>
+          </tr>
+          <tr>
+            <td><strong>Position</strong></td>
+            <td>En copie (mirroring)</td>
+            <td>En ligne (inline)</td>
+          </tr>
+          <tr>
+            <td><strong>Impact</strong></td>
+            <td>Aucun sur le trafic</td>
+            <td>Peut bloquer du trafic legitime</td>
+          </tr>
+          <tr>
+            <td><strong>Latence</strong></td>
+            <td>Aucune</td>
+            <td>Legere latence ajoutee</td>
+          </tr>
+          <tr>
+            <td><strong>Risque</strong></td>
+            <td>Attaque non bloquee</td>
+            <td>Faux positifs = blocage de trafic normal</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Types de detection</h3>
+      <ul>
+        <li><strong>Par signature :</strong> Compare le trafic a une base de regles connues (comme un antivirus). Rapide mais ne detecte pas les attaques inconnues.</li>
+        <li><strong>Par anomalie :</strong> Etablit un profil "normal" du trafic et detecte les deviations. Detecte les attaques inconnues mais genere plus de faux positifs.</li>
+        <li><strong>Hybride :</strong> Combine les deux approches. C'est ce que font les solutions modernes.</li>
+      </ul>
+    </div>
+
+    <!-- Section 2: Snort -->
+    <div class="section">
+      <h2>2. Snort en detail</h2>
+      <p>Snort est l'IDS/IPS open-source le plus utilise au monde. Cree en 1998 par Martin Roesch, il est maintenant maintenu par Cisco.</p>
+
+      <h3>Les 3 modes de Snort</h3>
+      <ul>
+        <li><strong>Sniffer :</strong> Affiche les paquets en temps reel (comme tcpdump)</li>
+        <li><strong>Packet Logger :</strong> Enregistre les paquets dans des fichiers log</li>
+        <li><strong>IDS/IPS :</strong> Analyse le trafic avec des regles et genere des alertes</li>
+      </ul>
+
+      <h3>Architecture de Snort</h3>
+      <div class="info-box green">
+        <p><strong>Packet Decoder</strong> → Capture et decode les paquets bruts</p>
+        <p><strong>Preprocessors</strong> → Recompose les flux, normalise le trafic</p>
+        <p><strong>Detection Engine</strong> → Compare les paquets aux regles</p>
+        <p><strong>Output Plugins</strong> → Genere alertes, logs, envoie vers SIEM</p>
+      </div>
+
+      <h3>Commandes essentielles</h3>
+      <div class="code-block"><code># Tester la configuration
+sudo snort -T -c /etc/snort/snort.conf
+
+# Lancer en mode IDS (alertes dans le terminal)
+sudo snort -A console -q -c /etc/snort/snort.conf -i eth0
+
+# Lancer avec logs dans un fichier
+sudo snort -A full -l /var/log/snort/ -c /etc/snort/snort.conf -i eth0
+
+# Lire un fichier pcap
+sudo snort -r capture.pcap -c /etc/snort/snort.conf</code></div>
+    </div>
+
+    <!-- Section 3: Anatomie d'une règle -->
+    <div class="section">
+      <h2>3. Anatomie d'une regle Snort</h2>
+      <p>Une regle Snort se compose de deux parties : le <strong>header</strong> (qui definit quoi matcher) et les <strong>options</strong> (qui affinent la detection).</p>
+
+      <div class="rule-anatomy">
+        <div class="rule-line">
+          <span class="part part-action">alert</span>
+          <span class="part part-proto">tcp</span>
+          <span class="part part-ip">10.0.0.0/8</span>
+          <span class="part part-port">any</span>
+          <span class="part-dir"> -> </span>
+          <span class="part part-ip">192.168.1.0/24</span>
+          <span class="part part-port">80</span>
+          <span class="part part-opt">(msg:"SQLi detectee"; content:"OR 1=1"; sid:1000001;)</span>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(255,68,68,0.3)"></div> Action</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(0,170,255,0.3)"></div> Protocole</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(0,255,65,0.3)"></div> IP (src/dst)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(255,170,0,0.3)"></div> Port</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(170,68,255,0.3)"></div> Options</div>
+        </div>
+      </div>
+
+      <h3>Actions possibles</h3>
+      <ul>
+        <li><strong>alert :</strong> Genere une alerte et log le paquet</li>
+        <li><strong>log :</strong> Log le paquet sans alerte</li>
+        <li><strong>pass :</strong> Ignore le paquet</li>
+        <li><strong>drop :</strong> Bloque le paquet (mode IPS uniquement)</li>
+      </ul>
+
+      <h3>Options principales</h3>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th>Description</th>
+            <th>Exemple</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>msg</strong></td>
+            <td>Message d'alerte</td>
+            <td>msg:"Ping detecte";</td>
+          </tr>
+          <tr>
+            <td><strong>content</strong></td>
+            <td>Cherche une chaine dans le payload</td>
+            <td>content:"OR 1=1";</td>
+          </tr>
+          <tr>
+            <td><strong>flags</strong></td>
+            <td>Flags TCP (S=SYN, A=ACK, F=FIN...)</td>
+            <td>flags:S;</td>
+          </tr>
+          <tr>
+            <td><strong>sid</strong></td>
+            <td>ID unique de la regle</td>
+            <td>sid:1000001;</td>
+          </tr>
+          <tr>
+            <td><strong>rev</strong></td>
+            <td>Numero de revision</td>
+            <td>rev:1;</td>
+          </tr>
+          <tr>
+            <td><strong>priority</strong></td>
+            <td>Priorite de l'alerte (1=haute)</td>
+            <td>priority:1;</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section 4: Types d'attaques -->
+    <div class="section">
+      <h2>4. Types d'attaques detectables</h2>
+
+      <h3>Scan de ports (Reconnaissance)</h3>
+      <p>L'attaquant envoie des paquets SYN vers differents ports pour decouvrir les services actifs. Outil typique : <strong>nmap</strong>.</p>
+      <div class="code-block"><code># Regle Snort pour detecter un scan SYN
+alert tcp any any -> any any (msg:"Scan SYN detecte"; flags:S; sid:1000010;)</code></div>
+
+      <h3>Ping Flood (DoS)</h3>
+      <p>Envoi massif de paquets ICMP Echo Request pour saturer la bande passante de la victime.</p>
+      <div class="code-block"><code># Regle pour detecter un ping flood
+alert icmp any any -> any any (msg:"Ping flood possible"; sid:1000011;)</code></div>
+
+      <h3>SQL Injection</h3>
+      <p>Insertion de code SQL malveillant dans des requetes HTTP pour manipuler la base de donnees.</p>
+      <div class="code-block"><code># Regle pour detecter une injection SQL basique
+alert tcp any any -> any 80 (msg:"SQL Injection tentative"; content:"OR 1=1"; sid:1000012;)</code></div>
+
+      <h3>Brute Force SSH</h3>
+      <p>Tentatives repetees de connexion SSH avec differents mots de passe.</p>
+      <div class="code-block"><code># Regle pour detecter des tentatives SSH
+alert tcp any any -> any 22 (msg:"Tentative SSH suspecte"; content:"SSH"; sid:1000013;)</code></div>
+
+      <h3>Exfiltration DNS</h3>
+      <p>Utilisation du protocole DNS pour envoyer des donnees volees vers un serveur controle par l'attaquant (C2).</p>
+      <div class="code-block"><code># Regle pour detecter l'exfiltration DNS
+alert udp any any -> any 53 (msg:"DNS suspect vers domaine malveillant"; content:"evil.com"; sid:1000014;)</code></div>
+    </div>
+
+    <!-- Section 5: Bonnes pratiques -->
+    <div class="section">
+      <h2>5. Bonnes pratiques</h2>
+
+      <div class="info-box yellow">
+        <p><strong>Regle d'or :</strong> Une bonne regle IDS detecte toutes les attaques (pas de faux negatifs) sans declencher d'alertes sur le trafic normal (pas de faux positifs).</p>
+      </div>
+
+      <ul>
+        <li><strong>Etre specifique :</strong> "alert tcp any any -> any 80" est trop large. Ajouter des criteres (content, flags) pour reduire les faux positifs.</li>
+        <li><strong>Tester avant de deployer :</strong> Utiliser des fichiers pcap pour valider les regles avant la mise en production.</li>
+        <li><strong>Maintenir a jour :</strong> Les regles communautaires Snort sont mises a jour regulierement avec les nouvelles signatures d'attaques.</li>
+        <li><strong>Combiner avec d'autres outils :</strong> Snort + SIEM (Splunk, ELK) pour la correlation et l'analyse.</li>
+        <li><strong>Documenter :</strong> Chaque regle custom doit etre documentee (pourquoi, quand, par qui).</li>
+        <li><strong>Surveiller les performances :</strong> Trop de regles = latence. Prioriser les regles critiques.</li>
+      </ul>
+
+      <h3>Faux positifs vs Faux negatifs</h3>
+      <div class="info-box red">
+        <p><strong>Faux positif :</strong> L'IDS alerte sur du trafic normal. Resultat : fatigue d'alerte, les vrais incidents sont ignores.</p>
+        <p><strong>Faux negatif :</strong> L'IDS laisse passer une vraie attaque. Resultat : l'attaquant agit sans etre detecte.</p>
+        <p><strong>Equilibre :</strong> Trop de sensibilite = faux positifs. Pas assez = faux negatifs. Il faut trouver le juste milieu.</p>
+      </div>
+    </div>
+
+    <!-- Section 6: Outils complémentaires -->
+    <div class="section">
+      <h2>6. Outils complementaires</h2>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Outil</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Snort</strong></td>
+            <td>IDS/IPS</td>
+            <td>Detection par signatures, le plus populaire</td>
+          </tr>
+          <tr>
+            <td><strong>Suricata</strong></td>
+            <td>IDS/IPS</td>
+            <td>Alternative a Snort, multi-threaded</td>
+          </tr>
+          <tr>
+            <td><strong>Zeek (Bro)</strong></td>
+            <td>NSM</td>
+            <td>Analyse de trafic reseau, logs detailles</td>
+          </tr>
+          <tr>
+            <td><strong>Wireshark</strong></td>
+            <td>Analyseur</td>
+            <td>Capture et analyse graphique de paquets</td>
+          </tr>
+          <tr>
+            <td><strong>tcpdump</strong></td>
+            <td>Capture</td>
+            <td>Capture de paquets en ligne de commande</td>
+          </tr>
+          <tr>
+            <td><strong>Splunk / ELK</strong></td>
+            <td>SIEM</td>
+            <td>Correlation de logs et visualisation</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="/ids/">← Retour a CyberGuard</a>
+  </div>
+</body>
+</html>

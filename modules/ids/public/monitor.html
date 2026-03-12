@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberGuard - Monitor IDS | CyberLab</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .nav a { color: #555; text-decoration: none; font-size: 13px; transition: color 0.2s; }
+    .nav a:hover { color: #00ff41; }
+    .nav .sep { color: #333; margin: 0 10px; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .top-bar h1 {
+      font-size: 20px;
+      color: #00aaff;
+    }
+
+    /* Stats cards */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 18px;
+      text-align: center;
+    }
+    .stat-card .value {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .stat-card .label {
+      font-size: 11px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .stat-packets .value { color: #00aaff; }
+    .stat-alerts .value { color: #ff4444; }
+    .stat-rules .value { color: #00ff41; }
+    .stat-fp .value { color: #ffaa00; }
+
+    /* Main layout */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 20px;
+    }
+
+    .panel {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid #1a1a1a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-header h3 {
+      font-size: 13px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Traffic feed */
+    .traffic-feed {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .pkt-row {
+      display: grid;
+      grid-template-columns: 50px 50px 1fr 60px 1fr;
+      gap: 6px;
+      padding: 7px 18px;
+      font-size: 11px;
+      border-bottom: 1px solid #0d0d0d;
+      transition: background 0.2s;
+      align-items: center;
+    }
+    .pkt-row:hover { background: #1a1a1a; }
+    .pkt-row.alerted { background: rgba(255, 68, 68, 0.06); }
+
+    .pkt-time { color: #444; }
+    .pkt-proto {
+      padding: 2px 6px;
+      border-radius: 3px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 10px;
+    }
+    .p-tcp { background: rgba(0, 170, 255, 0.15); color: #00aaff; }
+    .p-udp { background: rgba(170, 68, 255, 0.15); color: #aa44ff; }
+    .p-icmp { background: rgba(0, 255, 65, 0.15); color: #00ff41; }
+
+    .pkt-addr { color: #888; }
+    .pkt-port { color: #555; }
+    .pkt-payload { color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .pkt-alert-tag {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: bold;
+      margin-left: 6px;
+      background: rgba(255, 68, 68, 0.2);
+      color: #ff4444;
+    }
+
+    /* Rule editor sidebar */
+    .rule-section { padding: 18px; }
+    .rule-section label {
+      display: block;
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .rule-textarea {
+      width: 100%;
+      background: #0a0a0a;
+      border: 1px solid #222;
+      color: #00ff41;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      outline: none;
+      resize: vertical;
+      min-height: 180px;
+      line-height: 1.6;
+    }
+    .rule-textarea:focus { border-color: #00aaff; }
+    .rule-textarea::placeholder { color: #333; }
+
+    .rule-help {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: bold;
+      flex: 1;
+    }
+    .btn-primary { background: #00aaff; color: #000; }
+    .btn-primary:hover { background: #33bbff; }
+    .btn-danger { background: #ff4444; color: #fff; }
+    .btn-danger:hover { background: #ff6666; }
+    .btn-secondary { background: #1a1a1a; color: #888; border: 1px solid #333; }
+    .btn-secondary:hover { background: #222; color: #e0e0e0; }
+
+    /* Alerts panel */
+    .alerts-section {
+      margin-top: 14px;
+      border-top: 1px solid #1a1a1a;
+      padding-top: 14px;
+    }
+    .alerts-section h4 {
+      font-size: 12px;
+      color: #ff4444;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .alert-item {
+      padding: 8px 12px;
+      background: rgba(255, 68, 68, 0.05);
+      border: 1px solid rgba(255, 68, 68, 0.1);
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 11px;
+    }
+    .alert-item .alert-msg { color: #ff4444; font-weight: bold; margin-bottom: 2px; }
+    .alert-item .alert-detail { color: #666; }
+
+    .alert-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .no-alerts {
+      color: #333;
+      font-size: 12px;
+      font-style: italic;
+      padding: 10px 0;
+    }
+
+    /* Settings */
+    .settings-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .setting {
+      flex: 1;
+    }
+    .setting label {
+      display: block;
+      font-size: 10px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+    .setting select, .setting input {
+      width: 100%;
+      background: #0a0a0a;
+      border: 1px solid #222;
+      color: #e0e0e0;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .scrollbar::-webkit-scrollbar { width: 6px; }
+    .scrollbar::-webkit-scrollbar-track { background: #0a0a0a; }
+    .scrollbar::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+
+    @media (max-width: 900px) {
+      .main-layout { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/">CyberLab</a>
+    <span class="sep">/</span>
+    <a href="/ids/">CyberGuard</a>
+    <span class="sep">/</span>
+    <a href="monitor.html" style="color: #00aaff;">Monitor</a>
+  </nav>
+
+  <div class="container">
+    <div class="top-bar">
+      <h1>
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#00aaff;vertical-align:middle;margin-right:6px"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+        CyberGuard Monitor
+      </h1>
+      <div style="display:flex;gap:8px">
+        <span id="statusBadge" style="padding:4px 12px;border-radius:4px;font-size:11px;background:rgba(0,255,65,0.1);color:#00ff41;border:1px solid rgba(0,255,65,0.2)">PRET</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card stat-packets">
+        <div class="value" id="statPackets">0</div>
+        <div class="label">Paquets analyses</div>
+      </div>
+      <div class="stat-card stat-alerts">
+        <div class="value" id="statAlerts">0</div>
+        <div class="label">Alertes</div>
+      </div>
+      <div class="stat-card stat-rules">
+        <div class="value" id="statRules">0</div>
+        <div class="label">Regles actives</div>
+      </div>
+      <div class="stat-card stat-fp">
+        <div class="value" id="statDetectionRate">0%</div>
+        <div class="label">Taux detection</div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main-layout">
+      <!-- Traffic feed -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:#555;vertical-align:middle;margin-right:6px"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10z"/></svg>
+            Trafic reseau en direct
+          </h3>
+          <span style="font-size:11px;color:#444" id="trafficStatus">En attente...</span>
+        </div>
+        <div class="traffic-feed scrollbar" id="trafficFeed">
+          <div style="padding:40px;text-align:center;color:#333;font-size:13px">
+            Ecris tes regles et clique sur "Analyser" pour lancer la capture.
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div>
+        <!-- Rules -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Regles de detection</h3>
+          </div>
+          <div class="rule-section">
+            <label>Ecris tes regles Snort (une par ligne)</label>
+            <textarea id="rulesInput" class="rule-textarea" placeholder='# Exemple :
+alert icmp any any -> any any (msg:"Ping detecte"; sid:1000001;)
+alert tcp any any -> any 80 (msg:"HTTP request"; sid:1000002;)
+alert tcp 10.0.0.5 any -> any any (msg:"IP suspecte"; sid:1000003;)'></textarea>
+
+            <div class="settings-row">
+              <div class="setting">
+                <label>Paquets</label>
+                <select id="packetCount">
+                  <option value="20">20</option>
+                  <option value="40" selected>40</option>
+                  <option value="60">60</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+              <div class="setting">
+                <label>% attaques</label>
+                <select id="attackRatio">
+                  <option value="0.1">10%</option>
+                  <option value="0.2">20%</option>
+                  <option value="0.3" selected>30%</option>
+                  <option value="0.5">50%</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="runAnalysis()">
+                <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:#000;vertical-align:middle;margin-right:4px"><path d="M8 5v14l11-7z"/></svg>
+                Analyser
+              </button>
+              <button class="btn btn-secondary" onclick="clearAll()">Reset</button>
+            </div>
+
+            <div class="rule-help">
+              Format : alert &lt;proto&gt; &lt;src&gt; &lt;port&gt; -&gt; &lt;dst&gt; &lt;port&gt; (msg:"..."; sid:...;)<br>
+              Proto : tcp, udp, icmp, ip<br>
+              Utilisez "any" pour n'importe quelle IP/port<br>
+              Options : content:"...", flags:S
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="panel" style="margin-top:14px">
+          <div class="panel-header">
+            <h3 style="color:#ff4444">
+              <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:#ff4444;vertical-align:middle;margin-right:6px"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+              Alertes
+            </h3>
+            <span style="font-size:11px;color:#555" id="alertCount">0</span>
+          </div>
+          <div class="alert-list scrollbar" id="alertList" style="padding:12px 18px">
+            <div class="no-alerts">Aucune alerte pour le moment</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let totalPackets = 0;
+    let totalAlerts = 0;
+
+    async function runAnalysis() {
+      const rules = document.getElementById('rulesInput').value.trim();
+      if (!rules) return;
+
+      const packetCount = parseInt(document.getElementById('packetCount').value);
+      const attackRatio = parseFloat(document.getElementById('attackRatio').value);
+
+      document.getElementById('statusBadge').textContent = 'ANALYSE...';
+      document.getElementById('statusBadge').style.background = 'rgba(0, 170, 255, 0.1)';
+      document.getElementById('statusBadge').style.color = '#00aaff';
+      document.getElementById('statusBadge').style.borderColor = 'rgba(0, 170, 255, 0.2)';
+
+      try {
+        const res = await fetch('/ids/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rules, packetCount, attackRatio })
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          alert(data.error);
+          return;
+        }
+
+        totalPackets += data.packetsCount;
+        totalAlerts += data.alerts.length;
+
+        // Update stats
+        document.getElementById('statPackets').textContent = totalPackets;
+        document.getElementById('statAlerts').textContent = totalAlerts;
+        document.getElementById('statRules').textContent = data.rulesCount;
+
+        // Detection rate
+        const attackPackets = data.packets.filter(p => p.type === 'attack');
+        const detectedAttacks = data.alerts.filter(a => {
+          const pkt = data.packets.find(p =>
+            `${p.src}:${p.srcPort}` === a.packet.src && `${p.dst}:${p.dstPort}` === a.packet.dst
+          );
+          return pkt && pkt.type === 'attack';
+        });
+        const rate = attackPackets.length > 0 ? Math.round((detectedAttacks.length / attackPackets.length) * 100) : 0;
+        document.getElementById('statDetectionRate').textContent = rate + '%';
+
+        // Render traffic
+        renderTraffic(data.packets, data.alerts);
+
+        // Render alerts
+        renderAlerts(data.alerts);
+
+        // Status
+        document.getElementById('trafficStatus').textContent = `${data.packetsCount} paquets captures`;
+        document.getElementById('statusBadge').textContent = 'ACTIF';
+        document.getElementById('statusBadge').style.background = 'rgba(0, 255, 65, 0.1)';
+        document.getElementById('statusBadge').style.color = '#00ff41';
+        document.getElementById('statusBadge').style.borderColor = 'rgba(0, 255, 65, 0.2)';
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('statusBadge').textContent = 'ERREUR';
+        document.getElementById('statusBadge').style.background = 'rgba(255, 68, 68, 0.1)';
+        document.getElementById('statusBadge').style.color = '#ff4444';
+      }
+    }
+
+    function renderTraffic(packets, alerts) {
+      const feed = document.getElementById('trafficFeed');
+      feed.innerHTML = '';
+
+      packets.forEach((pkt, i) => {
+        const alert = alerts.find(a =>
+          a.packet.src === `${pkt.src}:${pkt.srcPort}` && a.packet.dst === `${pkt.dst}:${pkt.dstPort}`
+        );
+
+        const row = document.createElement('div');
+        row.className = 'pkt-row' + (alert ? ' alerted' : '');
+
+        const time = new Date(pkt.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        row.innerHTML = `
+          <span class="pkt-time">${time}</span>
+          <span class="pkt-proto p-${pkt.proto}">${pkt.proto.toUpperCase()}</span>
+          <span class="pkt-addr">${pkt.src} → ${pkt.dst}</span>
+          <span class="pkt-port">:${pkt.dstPort}</span>
+          <span class="pkt-payload">${pkt.payload || '—'}${alert ? `<span class="pkt-alert-tag">${alert.msg}</span>` : ''}</span>
+        `;
+
+        feed.appendChild(row);
+
+        // Animate appearance
+        row.style.opacity = '0';
+        row.style.transform = 'translateX(-10px)';
+        setTimeout(() => {
+          row.style.transition = 'all 0.3s';
+          row.style.opacity = '1';
+          row.style.transform = 'translateX(0)';
+        }, i * 30);
+      });
+    }
+
+    function renderAlerts(alerts) {
+      const list = document.getElementById('alertList');
+      document.getElementById('alertCount').textContent = alerts.length;
+
+      if (alerts.length === 0) {
+        list.innerHTML = '<div class="no-alerts">Aucune alerte - tes regles ne matchent rien</div>';
+        return;
+      }
+
+      list.innerHTML = '';
+      alerts.forEach(alert => {
+        const item = document.createElement('div');
+        item.className = 'alert-item';
+        item.innerHTML = `
+          <div class="alert-msg">[${alert.action.toUpperCase()}] ${alert.msg}</div>
+          <div class="alert-detail">${alert.packet.proto.toUpperCase()} ${alert.packet.src} → ${alert.packet.dst} ${alert.packet.payload ? '| ' + alert.packet.payload : ''}</div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function clearAll() {
+      totalPackets = 0;
+      totalAlerts = 0;
+      document.getElementById('statPackets').textContent = '0';
+      document.getElementById('statAlerts').textContent = '0';
+      document.getElementById('statRules').textContent = '0';
+      document.getElementById('statDetectionRate').textContent = '0%';
+      document.getElementById('trafficFeed').innerHTML = '<div style="padding:40px;text-align:center;color:#333;font-size:13px">Ecris tes regles et clique sur "Analyser" pour lancer la capture.</div>';
+      document.getElementById('alertList').innerHTML = '<div class="no-alerts">Aucune alerte pour le moment</div>';
+      document.getElementById('alertCount').textContent = '0';
+      document.getElementById('trafficStatus').textContent = 'En attente...';
+      document.getElementById('statusBadge').textContent = 'PRET';
+      document.getElementById('statusBadge').style.background = 'rgba(0, 255, 65, 0.1)';
+      document.getElementById('statusBadge').style.color = '#00ff41';
+    }
+  </script>
+</body>
+</html>
