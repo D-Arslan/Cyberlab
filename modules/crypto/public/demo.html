@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureLink - Démo DH + AES | CyberLab</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid #1a1a1a;
+      gap: 0;
+    }
+    .nav a { color: #555; text-decoration: none; font-size: 13px; transition: color 0.2s; }
+    .nav a:hover { color: #a855f7; }
+    .nav .sep { color: #333; margin: 0 10px; }
+
+    /* --- Steps progress --- */
+    .steps-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      padding: 28px 20px 0;
+    }
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .step-circle {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 2px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      color: #555;
+      transition: all 0.4s;
+    }
+    .step-label {
+      font-size: 10px;
+      color: #444;
+      text-align: center;
+      max-width: 80px;
+      line-height: 1.3;
+      transition: color 0.4s;
+    }
+    .step-line {
+      width: 60px;
+      height: 2px;
+      background: #222;
+      margin-bottom: 22px;
+      transition: background 0.4s;
+    }
+    .step-item.active .step-circle {
+      border-color: #a855f7;
+      color: #a855f7;
+      box-shadow: 0 0 12px rgba(168,85,247,0.3);
+    }
+    .step-item.active .step-label { color: #a855f7; }
+    .step-item.done .step-circle {
+      background: rgba(34,197,94,0.15);
+      border-color: #22c55e;
+      color: #22c55e;
+    }
+    .step-item.done .step-label { color: #22c55e; }
+    .step-line.done { background: #22c55e; }
+
+    /* --- Main area --- */
+    .main {
+      max-width: 960px;
+      margin: 30px auto 0;
+      padding: 0 20px;
+    }
+
+    /* --- Parties grid: Alice | Channel | Bob --- */
+    .parties {
+      display: grid;
+      grid-template-columns: 1fr 100px 1fr;
+      gap: 0;
+      align-items: start;
+    }
+
+    .party-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 20px;
+      min-height: 300px;
+    }
+    .party-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .party-avatar {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .alice-avatar { background: rgba(168,85,247,0.15); color: #a855f7; }
+    .bob-avatar { background: rgba(34,211,238,0.15); color: #22d3ee; }
+    .party-name { font-size: 16px; color: #e0e0e0; }
+    .party-role { font-size: 11px; color: #555; }
+
+    .key-row {
+      margin-bottom: 14px;
+      display: none;
+    }
+    .key-row.visible { display: block; }
+    .key-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+    .key-value {
+      font-size: 11px;
+      color: #888;
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
+      border-radius: 6px;
+      padding: 8px 10px;
+      word-break: break-all;
+      line-height: 1.4;
+    }
+    .key-value.highlight-purple { color: #c084fc; border-color: rgba(168,85,247,0.3); }
+    .key-value.highlight-cyan   { color: #67e8f9; border-color: rgba(34,211,238,0.3); }
+    .key-value.highlight-green  { color: #4ade80; border-color: rgba(74,222,128,0.3); }
+    .key-value.highlight-amber  { color: #fcd34d; border-color: rgba(252,211,77,0.3); }
+    .key-value.highlight-red    { color: #f87171; border-color: rgba(248,113,113,0.3); }
+
+    /* Private key blur */
+    .key-value.blurred {
+      filter: blur(3px);
+      cursor: pointer;
+      user-select: none;
+      transition: filter 0.3s;
+    }
+    .key-value.blurred:hover { filter: blur(2px); }
+    .blur-hint { font-size: 10px; color: #444; margin-top: 3px; }
+
+    .match-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #4ade80;
+      background: rgba(74,222,128,0.1);
+      border: 1px solid rgba(74,222,128,0.2);
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+      display: none;
+    }
+    .match-badge.visible { display: inline-flex; }
+    .match-badge svg { width: 12px; height: 12px; fill: #4ade80; }
+
+    /* --- Channel middle --- */
+    .channel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 0;
+      gap: 12px;
+      min-height: 300px;
+    }
+    .channel-line {
+      width: 2px;
+      flex: 1;
+      background: #1a1a1a;
+    }
+    .channel-icon {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: #111;
+      border: 2px solid #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.4s;
+    }
+    .channel-icon svg { width: 22px; height: 22px; fill: #333; }
+    .channel-icon.secure {
+      border-color: rgba(74,222,128,0.5);
+      background: rgba(74,222,128,0.05);
+      box-shadow: 0 0 16px rgba(74,222,128,0.15);
+    }
+    .channel-icon.secure svg { fill: #4ade80; }
+    .channel-label { font-size: 9px; color: #333; text-align: center; line-height: 1.4; }
+    .channel-label.secure { color: #4ade80; }
+
+    /* Arrow animation for key exchange */
+    .arrow-right, .arrow-left {
+      display: none;
+      font-size: 18px;
+      animation: pulse 0.8s ease-in-out infinite alternate;
+    }
+    .arrow-right { color: #a855f7; }
+    .arrow-left  { color: #22d3ee; }
+    .arrow-right.visible, .arrow-left.visible { display: block; }
+    @keyframes pulse {
+      from { opacity: 0.4; transform: scale(0.9); }
+      to   { opacity: 1;   transform: scale(1.1); }
+    }
+
+    /* --- Action panel --- */
+    .action-panel {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 18px;
+    }
+    .action-title {
+      font-size: 13px;
+      color: #a855f7;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .action-desc {
+      color: #888;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .formula-box {
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 16px;
+      line-height: 1.8;
+    }
+    .formula-box .var { color: #a855f7; }
+    .formula-box .val { color: #22d3ee; }
+    .formula-box .op  { color: #888; }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: rgba(168,85,247,0.15);
+      color: #a855f7;
+      border: 1px solid rgba(168,85,247,0.3);
+    }
+    .btn-primary:hover {
+      background: rgba(168,85,247,0.25);
+      box-shadow: 0 0 16px rgba(168,85,247,0.2);
+    }
+    .btn-cyan {
+      background: rgba(34,211,238,0.1);
+      color: #22d3ee;
+      border: 1px solid rgba(34,211,238,0.3);
+    }
+    .btn-cyan:hover { background: rgba(34,211,238,0.2); }
+    .btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+    /* --- Messaging area --- */
+    .message-area {
+      display: none;
+      margin-top: 18px;
+    }
+    .message-area.visible { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .msg-panel {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .msg-panel h4 {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .msg-panel h4 span { color: #a855f7; }
+    .msg-panel h4 span.cyan { color: #22d3ee; }
+    textarea {
+      width: 100%;
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      padding: 10px;
+      resize: vertical;
+      min-height: 80px;
+      margin-bottom: 12px;
+    }
+    textarea:focus { outline: none; border-color: #a855f7; }
+    .result-box {
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 11px;
+      min-height: 60px;
+      margin-top: 10px;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+    .result-label {
+      font-size: 10px;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 12px;
+      margin-bottom: 4px;
+    }
+    .error { color: #f87171; font-size: 12px; margin-top: 8px; }
+    .loading { color: #555; font-size: 12px; }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid #333;
+      border-top-color: #a855f7;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin 0.6s linear infinite;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 40px 20px;
+      border-top: 1px solid #111;
+      margin-top: 40px;
+    }
+    .footer a { color: #444; text-decoration: none; font-size: 12px; }
+    .footer a:hover { color: #a855f7; }
+
+    @media (max-width: 700px) {
+      .parties { grid-template-columns: 1fr; }
+      .channel { flex-direction: row; min-height: auto; padding: 10px 0; }
+      .channel-line { width: 100%; height: 2px; flex: 1; }
+      .message-area.visible { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/">CyberLab</a>
+    <span class="sep">/</span>
+    <a href="/crypto/">SecureLink</a>
+    <span class="sep">/</span>
+    <a href="#" style="color: #a855f7;">Démo interactive</a>
+  </nav>
+
+  <!-- Steps progress -->
+  <div class="steps-bar">
+    <div class="step-item active" id="s1">
+      <div class="step-circle">1</div>
+      <div class="step-label">Génération DH</div>
+    </div>
+    <div class="step-line" id="l1"></div>
+    <div class="step-item" id="s2">
+      <div class="step-circle">2</div>
+      <div class="step-label">Échange des clés</div>
+    </div>
+    <div class="step-line" id="l2"></div>
+    <div class="step-item" id="s3">
+      <div class="step-circle">3</div>
+      <div class="step-label">Secret partagé</div>
+    </div>
+    <div class="step-line" id="l3"></div>
+    <div class="step-item" id="s4">
+      <div class="step-circle">4</div>
+      <div class="step-label">Communication</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- Alice | Channel | Bob -->
+    <div class="parties">
+
+      <!-- Alice -->
+      <div class="party-card">
+        <div class="party-header">
+          <div class="party-avatar alice-avatar">A</div>
+          <div>
+            <div class="party-name">Alice</div>
+            <div class="party-role">Émetteur</div>
+          </div>
+        </div>
+
+        <div class="key-row" id="alice-params">
+          <div class="key-label">Paramètres publics (p, g)</div>
+          <div class="key-value highlight-purple" id="alice-prime-val">—</div>
+          <div class="key-label" style="margin-top:6px;">Générateur g</div>
+          <div class="key-value highlight-purple" id="alice-gen-val">—</div>
+        </div>
+
+        <div class="key-row" id="alice-priv-row">
+          <div class="key-label">Clé privée a <span style="color:#f59e0b;font-size:9px;">(secrète)</span></div>
+          <div class="key-value highlight-amber blurred" id="alice-priv"
+               onclick="this.classList.toggle('blurred')" title="Cliquer pour révéler">—</div>
+          <div class="blur-hint">Cliquer pour révéler (simulation pédagogique)</div>
+        </div>
+
+        <div class="key-row" id="alice-pub-row">
+          <div class="key-label">Clé publique A = g<sup>a</sup> mod p</div>
+          <div class="key-value highlight-purple" id="alice-pub">—</div>
+        </div>
+
+        <div class="key-row" id="alice-secret-row">
+          <div class="key-label">Secret partagé S = B<sup>a</sup> mod p</div>
+          <div class="key-value" id="alice-secret">—</div>
+          <div class="match-badge" id="alice-match">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            Identique à Bob
+          </div>
+        </div>
+
+        <div class="key-row" id="alice-aes-row">
+          <div class="key-label">Clé AES-256 = SHA-256(S)</div>
+          <div class="key-value highlight-green" id="alice-aes">—</div>
+        </div>
+      </div>
+
+      <!-- Channel -->
+      <div class="channel">
+        <div class="channel-line"></div>
+        <div class="arrow-right" id="arrow-right">→</div>
+        <div class="channel-icon" id="channel-icon">
+          <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        </div>
+        <div class="arrow-left" id="arrow-left">←</div>
+        <div class="channel-label" id="channel-label">Canal public</div>
+        <div class="channel-line"></div>
+      </div>
+
+      <!-- Bob -->
+      <div class="party-card">
+        <div class="party-header">
+          <div class="party-avatar bob-avatar">B</div>
+          <div>
+            <div class="party-name">Bob</div>
+            <div class="party-role">Destinataire</div>
+          </div>
+        </div>
+
+        <div class="key-row" id="bob-params">
+          <div class="key-label">Paramètres partagés (p, g)</div>
+          <div class="key-value highlight-cyan" id="bob-prime-val">—</div>
+          <div class="key-label" style="margin-top:6px;">Générateur g</div>
+          <div class="key-value highlight-cyan" id="bob-gen-val">—</div>
+        </div>
+
+        <div class="key-row" id="bob-priv-row">
+          <div class="key-label">Clé privée b <span style="color:#f59e0b;font-size:9px;">(secrète)</span></div>
+          <div class="key-value highlight-amber blurred" id="bob-priv"
+               onclick="this.classList.toggle('blurred')" title="Cliquer pour révéler">—</div>
+          <div class="blur-hint">Cliquer pour révéler (simulation pédagogique)</div>
+        </div>
+
+        <div class="key-row" id="bob-pub-row">
+          <div class="key-label">Clé publique B = g<sup>b</sup> mod p</div>
+          <div class="key-value highlight-cyan" id="bob-pub">—</div>
+        </div>
+
+        <div class="key-row" id="bob-secret-row">
+          <div class="key-label">Secret partagé S = A<sup>b</sup> mod p</div>
+          <div class="key-value" id="bob-secret">—</div>
+          <div class="match-badge" id="bob-match">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            Identique à Alice
+          </div>
+        </div>
+
+        <div class="key-row" id="bob-aes-row">
+          <div class="key-label">Clé AES-256 = SHA-256(S)</div>
+          <div class="key-value highlight-green" id="bob-aes">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action panel -->
+    <div class="action-panel" id="action-panel">
+      <div class="action-title" id="action-title">Étape 1 — Génération des clés Diffie-Hellman</div>
+      <div class="action-desc" id="action-desc">
+        Alice génère les paramètres publics (un nombre premier p et un générateur g),
+        puis chacun génère sa propre paire de clés privée/publique. Les clés privées
+        ne quittent jamais leur propriétaire.
+      </div>
+      <div class="formula-box" id="formula-box">
+        <span class="var">Alice</span> : choisit <span class="var">a</span> secret, calcule <span class="var">A</span> = <span class="val">g</span><sup><span class="var">a</span></sup> mod <span class="val">p</span><br>
+        <span class="var">Bob</span>   : choisit <span class="var">b</span> secret, calcule <span class="var">B</span> = <span class="val">g</span><sup><span class="var">b</span></sup> mod <span class="val">p</span>
+      </div>
+      <button class="btn btn-primary" id="main-btn" onclick="handleStep()">
+        <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+        Générer les clés DH
+      </button>
+      <span id="loading-indicator" class="loading" style="display:none; margin-left:12px;">
+        <span class="spinner"></span> Génération en cours...
+      </span>
+      <div class="error" id="error-msg"></div>
+    </div>
+
+    <!-- Messaging area (step 4) -->
+    <div class="message-area" id="message-area">
+
+      <!-- Alice sends -->
+      <div class="msg-panel">
+        <h4><span>Alice</span> chiffre un message</h4>
+        <textarea id="plaintext-input" placeholder="Tape ton message ici...">Bonjour Bob, le canal est sécurisé !</textarea>
+        <button class="btn btn-primary" onclick="encryptMessage()">
+          <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9z"/></svg>
+          Chiffrer avec AES-256
+        </button>
+        <div class="result-label">Vecteur d'initialisation (IV)</div>
+        <div class="result-box" id="iv-output" style="color:#888;font-size:10px;">—</div>
+        <div class="result-label">Message chiffré (ciphertext)</div>
+        <div class="result-box highlight-red" id="cipher-output" style="color:#f87171;">—</div>
+        <div class="error" id="enc-error"></div>
+      </div>
+
+      <!-- Bob decrypts -->
+      <div class="msg-panel">
+        <h4><span class="cyan">Bob</span> déchiffre le message</h4>
+        <p style="color:#555;font-size:12px;margin-bottom:14px;line-height:1.6;">
+          Bob utilise sa clé AES (identique à celle d'Alice) pour déchiffrer le ciphertext.
+          Ni la clé ni le message original n'ont transité sur le réseau.
+        </p>
+        <button class="btn btn-cyan" onclick="decryptMessage()">
+          <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+          Déchiffrer
+        </button>
+        <div class="result-label">Message déchiffré</div>
+        <div class="result-box highlight-green" id="plain-output" style="color:#4ade80;">—</div>
+        <div class="error" id="dec-error"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="/crypto/">← Retour à SecureLink</a>
+  </div>
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────────────────
+    const state = {
+      step: 1,
+      alice: null,  // { sessionId, publicKey, privateKey, sharedSecret, aesKey }
+      bob:   null,
+      prime: null,
+      generator: null,
+      ciphertext: null,
+      iv: null
+    };
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    function trunc(hex, n = 32) {
+      if (!hex) return '—';
+      return hex.length > n ? hex.slice(0, n) + '…' : hex;
+    }
+
+    async function api(url, body) {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      return r.json();
+    }
+
+    function showError(msg) {
+      document.getElementById('error-msg').textContent = msg;
+    }
+
+    function setLoading(on) {
+      document.getElementById('loading-indicator').style.display = on ? 'inline-flex' : 'none';
+      document.getElementById('main-btn').disabled = on;
+    }
+
+    function showRow(id) {
+      document.getElementById(id).classList.add('visible');
+    }
+
+    function setStepState(id, cls) {
+      const el = document.getElementById(id);
+      el.classList.remove('active', 'done');
+      if (cls) el.classList.add(cls);
+    }
+
+    function updateProgress() {
+      const s = state.step;
+      ['s1','s2','s3','s4'].forEach((id, i) => {
+        const step = i + 1;
+        if (step < s) setStepState(id, 'done');
+        else if (step === s) setStepState(id, 'active');
+        else setStepState(id, '');
+      });
+      ['l1','l2','l3'].forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.classList.toggle('done', i + 1 < s);
+      });
+    }
+
+    // ── Step dispatcher ────────────────────────────────────────────────────────
+    async function handleStep() {
+      showError('');
+      if (state.step === 1) await step1_generate();
+      else if (state.step === 2) await step2_exchange();
+      else if (state.step === 3) await step3_secret();
+    }
+
+    // ── Step 1: Generate DH keys for Alice and Bob ─────────────────────────────
+    async function step1_generate() {
+      setLoading(true);
+      try {
+        // Alice generates fresh params
+        const aliceRes = await api('/crypto/api/dh/keygen', {});
+        if (!aliceRes.success) { showError(aliceRes.error); return; }
+
+        // Bob reuses same prime + generator
+        const bobRes = await api('/crypto/api/dh/keygen', {
+          prime: aliceRes.prime,
+          generator: aliceRes.generator
+        });
+        if (!bobRes.success) { showError(bobRes.error); return; }
+
+        state.alice     = { sessionId: aliceRes.sessionId, publicKey: aliceRes.publicKey, privateKey: aliceRes.privateKey };
+        state.bob       = { sessionId: bobRes.sessionId,   publicKey: bobRes.publicKey,   privateKey: bobRes.privateKey };
+        state.prime     = aliceRes.prime;
+        state.generator = aliceRes.generator;
+
+        // Update Alice panel
+        document.getElementById('alice-prime-val').textContent = trunc(aliceRes.prime, 48);
+        document.getElementById('alice-gen-val').textContent   = parseInt(aliceRes.generator, 16);
+        document.getElementById('alice-priv').textContent      = trunc(aliceRes.privateKey, 48);
+        document.getElementById('alice-pub').textContent       = trunc(aliceRes.publicKey, 48);
+        showRow('alice-params'); showRow('alice-priv-row'); showRow('alice-pub-row');
+
+        // Update Bob panel
+        document.getElementById('bob-prime-val').textContent = trunc(aliceRes.prime, 48);
+        document.getElementById('bob-gen-val').textContent   = parseInt(aliceRes.generator, 16);
+        document.getElementById('bob-priv').textContent      = trunc(bobRes.privateKey, 48);
+        document.getElementById('bob-pub').textContent       = trunc(bobRes.publicKey, 48);
+        showRow('bob-params'); showRow('bob-priv-row'); showRow('bob-pub-row');
+
+        // Advance to step 2
+        state.step = 2;
+        updateProgress();
+        document.getElementById('action-title').textContent = 'Étape 2 — Échange des clés publiques';
+        document.getElementById('action-desc').innerHTML =
+          'Alice envoie <strong style="color:#c084fc">A</strong> à Bob, et Bob envoie ' +
+          '<strong style="color:#67e8f9">B</strong> à Alice. ' +
+          'Ces clés transitent en clair sur le réseau — un attaquant peut les voir, ' +
+          'mais il ne peut pas recalculer le secret sans résoudre le <em>problème du logarithme discret</em>.';
+        document.getElementById('formula-box').innerHTML =
+          '<span class="var">Alice</span> envoie <span class="var">A</span> = <span class="val">' + trunc(aliceRes.publicKey, 16) + '…</span><br>' +
+          '<span class="var">Bob</span>   envoie <span class="var">B</span> = <span class="val">' + trunc(bobRes.publicKey, 16) + '…</span>';
+        document.getElementById('main-btn').innerHTML =
+          '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M4 11h12.17l-5.59-5.59L12 4l8 8-8 8-1.41-1.41L16.17 13H4z"/></svg> Échanger les clés publiques';
+
+      } finally { setLoading(false); }
+    }
+
+    // ── Step 2: Visual key exchange ────────────────────────────────────────────
+    async function step2_exchange() {
+      document.getElementById('arrow-right').classList.add('visible');
+      document.getElementById('arrow-left').classList.add('visible');
+      document.getElementById('main-btn').disabled = true;
+
+      setTimeout(() => {
+        document.getElementById('arrow-right').classList.remove('visible');
+        document.getElementById('arrow-left').classList.remove('visible');
+        document.getElementById('main-btn').disabled = false;
+
+        state.step = 3;
+        updateProgress();
+        document.getElementById('action-title').textContent = 'Étape 3 — Calcul du secret partagé';
+        document.getElementById('action-desc').innerHTML =
+          'Alice calcule <strong style="color:#4ade80">S = B<sup>a</sup> mod p</strong>, ' +
+          'Bob calcule <strong style="color:#4ade80">S = A<sup>b</sup> mod p</strong>. ' +
+          'Grâce aux propriétés de l\'exponentiation modulaire, les deux résultats sont identiques. ' +
+          'La clé AES-256 est ensuite dérivée via <strong>SHA-256(S)</strong>.';
+        document.getElementById('formula-box').innerHTML =
+          'Alice : S = <span class="var">B</span><sup><span class="var">a</span></sup> mod <span class="val">p</span> = <span class="val">g</span><sup><span class="var">ab</span></sup> mod <span class="val">p</span><br>' +
+          'Bob   : S = <span class="var">A</span><sup><span class="var">b</span></sup> mod <span class="val">p</span> = <span class="val">g</span><sup><span class="var">ab</span></sup> mod <span class="val">p</span><br>' +
+          '<span style="color:#4ade80;font-size:12px;">→ Clé AES = SHA-256(S) &nbsp; [256 bits]</span>';
+        document.getElementById('main-btn').innerHTML =
+          '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg> Calculer le secret partagé';
+      }, 2000);
+    }
+
+    // ── Step 3: Compute shared secrets + derive AES keys ──────────────────────
+    async function step3_secret() {
+      setLoading(true);
+      try {
+        const [aliceRes, bobRes] = await Promise.all([
+          api('/crypto/api/dh/compute', { sessionId: state.alice.sessionId, otherPublicKey: state.bob.publicKey }),
+          api('/crypto/api/dh/compute', { sessionId: state.bob.sessionId,   otherPublicKey: state.alice.publicKey })
+        ]);
+
+        if (!aliceRes.success) { showError(aliceRes.error); return; }
+        if (!bobRes.success)   { showError(bobRes.error);   return; }
+
+        state.alice.sharedSecret = aliceRes.sharedSecret;
+        state.alice.aesKey       = aliceRes.aesKey;
+        state.bob.sharedSecret   = bobRes.sharedSecret;
+        state.bob.aesKey         = bobRes.aesKey;
+
+        const match = aliceRes.aesKey === bobRes.aesKey;
+        const secretColor = match ? '' : 'highlight-red';
+
+        document.getElementById('alice-secret').textContent = trunc(aliceRes.sharedSecret, 48);
+        document.getElementById('alice-secret').className   = 'key-value ' + (match ? 'highlight-green' : 'highlight-red');
+        document.getElementById('alice-aes').textContent    = aliceRes.aesKey;
+        document.getElementById('bob-secret').textContent   = trunc(bobRes.sharedSecret, 48);
+        document.getElementById('bob-secret').className     = 'key-value ' + (match ? 'highlight-green' : 'highlight-red');
+        document.getElementById('bob-aes').textContent      = bobRes.aesKey;
+
+        if (match) {
+          document.getElementById('alice-match').classList.add('visible');
+          document.getElementById('bob-match').classList.add('visible');
+          document.getElementById('channel-icon').classList.add('secure');
+          document.getElementById('channel-label').textContent  = 'Canal\nsécurisé';
+          document.getElementById('channel-label').classList.add('secure');
+        }
+
+        showRow('alice-secret-row'); showRow('alice-aes-row');
+        showRow('bob-secret-row');   showRow('bob-aes-row');
+
+        // Advance to step 4
+        state.step = 4;
+        updateProgress();
+        document.getElementById('action-title').textContent = 'Étape 4 — Communication chiffrée';
+        document.getElementById('action-desc').innerHTML =
+          'Les deux parties partagent maintenant la même clé AES-256 sans qu\'elle n\'ait jamais transité sur le réseau. ' +
+          'Alice peut chiffrer n\'importe quel message ; Bob peut le déchiffrer avec sa propre clé identique.';
+        document.getElementById('formula-box').innerHTML =
+          'Chiffrement : <span class="var">C</span> = AES-256-CBC(<span class="var">K</span>, <span class="val">IV</span>, <span class="var">M</span>)<br>' +
+          'Déchiffrement : <span class="var">M</span> = AES-256-CBC<sup>-1</span>(<span class="var">K</span>, <span class="val">IV</span>, <span class="var">C</span>)';
+        document.getElementById('main-btn').style.display = 'none';
+        document.getElementById('message-area').classList.add('visible');
+
+      } finally { setLoading(false); }
+    }
+
+    // ── Encrypt ────────────────────────────────────────────────────────────────
+    async function encryptMessage() {
+      document.getElementById('enc-error').textContent = '';
+      const plaintext = document.getElementById('plaintext-input').value.trim();
+      if (!plaintext) return;
+      if (!state.alice?.aesKey) { document.getElementById('enc-error').textContent = 'Lance d\'abord le protocole DH.'; return; }
+
+      const res = await api('/crypto/api/aes/encrypt', { aesKey: state.alice.aesKey, plaintext });
+      if (!res.success) { document.getElementById('enc-error').textContent = res.error; return; }
+
+      state.ciphertext = res.ciphertext;
+      state.iv         = res.iv;
+      document.getElementById('iv-output').textContent     = res.iv;
+      document.getElementById('cipher-output').textContent = res.ciphertext;
+      document.getElementById('plain-output').textContent  = '—';
+    }
+
+    // ── Decrypt ────────────────────────────────────────────────────────────────
+    async function decryptMessage() {
+      document.getElementById('dec-error').textContent = '';
+      if (!state.ciphertext) { document.getElementById('dec-error').textContent = 'Chiffre d\'abord un message.'; return; }
+      if (!state.bob?.aesKey) { document.getElementById('dec-error').textContent = 'Lance d\'abord le protocole DH.'; return; }
+
+      const res = await api('/crypto/api/aes/decrypt', {
+        aesKey: state.bob.aesKey,
+        ciphertext: state.ciphertext,
+        iv: state.iv
+      });
+
+      if (!res.success) { document.getElementById('dec-error').textContent = res.error; return; }
+      document.getElementById('plain-output').textContent = res.plaintext;
+    }
+  </script>
+</body>
+</html>

